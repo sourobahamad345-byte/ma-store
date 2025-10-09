@@ -3,12 +3,14 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <title>Offline Store Management (Updated)</title>
+    <title>Offline Store Management (Optimized & Fixed)</title>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
             --primary: #111;
-            --accent: #00ff99;
+            --accent: #ff0033;
             --bg: #f7f8fa;
             --card: #ffffff;
             --border: #e5e7eb;
@@ -29,11 +31,15 @@
             color: var(--primary);
             padding: 16px 18px;
             text-align: center;
-            font-size: 20px;
+            font-size: 24px;
             font-weight: 700;
             letter-spacing: 2px;
             border-bottom: 1px solid var(--border);
             display: flex; justify-content: space-between; align-items: center;
+        }
+        header .title {
+            font-family: 'Major Mono Display', monospace;
+            font-size: 28px;
         }
         header button {
             background: transparent;
@@ -44,11 +50,13 @@
             cursor: pointer;
             transition: transform .08s ease, background .2s ease, color .2s ease, border-color .2s ease;
         }
-        header button:hover { background: var(--accent); color: #000; border-color: var(--accent); }
+        header button:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
         header button:active { transform: scale(0.98); }
         nav {
-            position: sticky; top: 60px; z-index: 10;
-            display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+            position: sticky; top: 73px; z-index: 10;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
             padding: 12px 10px;
             background: rgba(255, 255, 255, 0.65);
             backdrop-filter: blur(8px);
@@ -64,7 +72,7 @@
             cursor: pointer;
             transition: transform .08s ease, background .2s ease, color .2s ease, border-color .2s ease;
         }
-        nav button:hover, .custom-file-upload:hover { background: var(--accent); color: #000; border-color: var(--accent); }
+        nav button:hover, .custom-file-upload:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
         nav button:active, .custom-file-upload:active { transform: scale(0.98); }
         .custom-file-upload { display: inline-block; }
         .custom-file-upload input[type="file"] { display: none; }
@@ -92,6 +100,7 @@
         table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 14px }
         th, td { border: 1px solid var(--border); padding: 8px; text-align: center }
         th { background: #111; color: #fff; letter-spacing: 1px }
+        tfoot td { font-weight: bold; }
         input, select, button, textarea {
             padding: 8px 10px;
             border: 1px solid var(--border);
@@ -119,8 +128,11 @@
             margin-top: 16px;
             margin-bottom: 16px;
         }
+        .filter-row button {
+            background: transparent; border: 1px solid var(--border); padding: 8px 14px; border-radius: 999px; cursor: pointer;
+        }
+        .filter-row button:hover { background: var(--accent); color: #fff; }
         .search-box input { width: 100%; }
-        .filter-row label { white-space: nowrap; }
         .custom-dropdown-container { position: relative; width: 100%; }
         .custom-dropdown-list {
             position: absolute; top: 100%; left: 0; right: 0; z-index: 10;
@@ -146,17 +158,9 @@
         .add-item-details { flex-grow: 1; display: flex; flex-direction: column; }
         .add-item input { width: 80px; }
         
-        /* Drag and Drop Styles */
-        #productList tr {
-            cursor: move;
-        }
-        #productList tr.dragging {
-            opacity: 0.5;
-            background: #eaf6ff;
-        }
-        #productList tr.drag-over {
-            border-top: 2px solid var(--accent);
-        }
+        #productList tr { cursor: move; }
+        #productList tr.dragging { opacity: 0.5; background: #eaf6ff; }
+        #productList tr.drag-over { border-top: 2px solid var(--accent); }
         
         @media (max-width: 700px) {
             .row { flex-direction: column }
@@ -167,31 +171,30 @@
 </head>
 <body>
     <header>
-        <button onclick="toggleMenu()">Menu</button>
-        <div style="flex: 1; text-align: center;">
-            🧾 Ma store
-        </div>
-        <button class="modeToggle" id="modeBtn" onclick="toggleMode()">Mode: <span id="modeLabel">Details</span></button>
+        <button onclick="toggleMenu()"><i class="fa-solid fa-bars"></i></button>
+        <div class="title" style="flex: 1; text-align: center;">Ma store</div>
+        <button class="modeToggle" id="modeBtn" onclick="toggleMode()"><i class="fa-solid fa-eye"></i> <span id="modeLabel">Details</span></button>
     </header>
     <nav class="hidden" id="mainNav">
-        <button onclick="showSection('dashboard')">Dashboard</button>
-        <button onclick="showSection('customers')">Customers</button>
-        <button onclick="showSection('products')">Products</button>
-        <button onclick="showSection('addCustomerSection')">Add Customer</button>
-        <button onclick="showSection('addProductSection')">Add Product</button>
-        <button onclick="showSection('addStockSection')">Add Stock</button>
-        <button onclick="showSection('addSaleSection')">Add Sale</button>
-        <button onclick="showSection('saleRecordSection')">Sale Record</button>
-        <button onclick="showSection('expenses')">Expenses</button>
-        <button onclick="exportData()">Export Data</button>
+        <button onclick="showSection('dashboard')"><i class="fa-solid fa-chart-pie"></i> Dashboard</button>
+        <button onclick="showSection('addSaleSection')"><i class="fa-solid fa-cart-plus"></i> Add Sale</button>
+        <button onclick="showSection('addStockSection')"><i class="fa-solid fa-box-archive"></i> Add Stock</button>
+        <button onclick="showSection('todaySaleSection')"><i class="fa-solid fa-sun"></i> Today's Sale</button>
+        <button onclick="showSection('saleRecordSection')"><i class="fa-solid fa-receipt"></i> Sale Record</button>
+        <button onclick="showSection('expenses')"><i class="fa-solid fa-file-invoice-dollar"></i> Expenses</button>
+        <button onclick="showSection('customers')"><i class="fa-solid fa-users"></i> Customers</button>
+        <button onclick="showSection('products')"><i class="fa-solid fa-boxes-stacked"></i> Products</button>
+        <button onclick="showSection('addCustomerSection')"><i class="fa-solid fa-user-plus"></i> Add Customer</button>
+        <button onclick="showSection('addProductSection')"><i class="fa-solid fa-plus-circle"></i> Add Product</button>
+        <button onclick="exportData()"><i class="fa-solid fa-file-export"></i> Export Data</button>
         <label class="custom-file-upload">
             <input type="file" id="importFile" accept=".json" onchange="importData(event)"/>
-            Import Data
+            <i class="fa-solid fa-file-import"></i> Import Data
         </label>
     </nav>
     <div class="container">
         <section id="dashboard">
-            <h2>Dashboard</h2>
+            <h2><i class="fa-solid fa-chart-pie"></i> Dashboard</h2>
             <div id="expiry-notification-area" style="margin-bottom: 16px;"></div>
             <div class="row">
                 <div class="col summary">
@@ -229,28 +232,73 @@
             </div>
             <div class="filter-row">
                 <label for="initialCash">Initial Cash:</label>
-                <input type="number" step="0.01" id="initialCash" placeholder="0.00" onchange="updateInitialCash()" />
+                <input type="number" step="any" id="initialCash" placeholder="0.00" oninput="updateInitialCash()" />
                 <label for="dateFilter">Filter by Date:</label>
                 <input type="date" id="dateFilter" onchange="renderDashboard()" />
                 <label for="monthFilter">Filter by Month:</label>
                 <input type="month" id="monthFilter" onchange="renderDashboard()" />
             </div>
         </section>
-        <section id="customers" class="hidden">
-            <h2>Customers</h2>
-             <div class="search-box">
-                <input type="text" id="customerSearch" onkeyup="searchCustomers()" placeholder="Search Customers...">
+
+        <section id="todaySaleSection" class="hidden">
+            <h2><i class="fa-solid fa-sun"></i> Today's Sales Report</h2>
+            <div class="filter-row">
+                <button onclick="renderTodaySaleSection('all')">All</button>
+                <button onclick="renderTodaySaleSection('cash')">Cash</button>
+                <button onclick="renderTodaySaleSection('credit')">Credit</button>
             </div>
-            <ul id="customerList"></ul>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Product</th>
+                        <th>Quantity Sold</th>
+                        <th>Total Profit (৳)</th>
+                        <th>Total Sale (৳)</th>
+                    </tr>
+                </thead>
+                <tbody id="todaySalesList">
+                    </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="2"><strong>Total</strong></td>
+                        <td id="todaySaleTotalQty"><strong>0</strong></td>
+                        <td id="todaySaleTotalProfit"><strong>৳ 0.00</strong></td>
+                        <td id="todaySaleTotalAmount"><strong>৳ 0.00</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </section>
+
+        <section id="customers" class="hidden">
+            <h2><i class="fa-solid fa-users"></i> Customers</h2>
+            <div class="row" style="margin-bottom: 16px;">
+                <div class="col summary">
+                    <div class="small">All Customers Total Due</div>
+                    <div style="font-weight: 700; font-size: 18px">৳ <span id="customersTotalDue">0.00</span></div>
+                </div>
+                <div class="col summary">
+                    <div class="small">Total Profit from Dues</div>
+                    <div style="font-weight: 700; font-size: 18px">৳ <span id="totalProfitFromDues">0.00</span></div>
+                </div>
+                <div class="col summary">
+                    <div class="small">Current Month Profit from Dues</div>
+                    <div style="font-weight: 700; font-size: 18px">৳ <span id="currentMonthProfitFromDues">0.00</span></div>
+                </div>
+            </div>
+             <div class="search-box">
+                <input type="text" id="customerSearch" onkeyup="searchCustomers()" placeholder="Search Customers..." onfocus="this.scrollIntoView({ behavior: 'smooth', block: 'center' });">
+            </div>
+            <ul id="customerList" style="padding-left: 0;"></ul>
         </section>
         
         <section id="customerFullScreen" class="hidden">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
                 <h2 id="fs_custTitle" style="margin: 0;">Customer Details</h2>
                 <div style="display: flex; gap: 8px; align-items: center;">
-                     <button onclick="showSection('customers')"> &larr; Back to Customers</button>
-                    <button onclick="openCustomerInNewTab()">Open in new tab</button>
-                    <button class="deleteBtn" style="padding: 8px 14px;" onclick="deleteCustomer(currentCustomer)">Delete Customer</button>
+                     <button onclick="showSection('customers')"><i class="fa-solid fa-arrow-left"></i> Back to Customers</button>
+                    <button onclick="openCustomerInNewTab()"><i class="fa-solid fa-external-link-alt"></i> Open in new tab</button>
+                    <button class="deleteBtn" style="padding: 8px 14px;" onclick="deleteCustomer(currentCustomer)"><i class="fa-solid fa-trash"></i> Delete Customer</button>
                 </div>
             </div>
 
@@ -259,21 +307,36 @@
                     <form onsubmit="addCustomerSaleFullScreen(event)">
                         <h4 style="margin-top: 0">Add Sale to Customer</h4>
                         <label class="small" style="display: block; margin-bottom: 4px;">Product</label>
-                        <div class="custom-dropdown-container">
-                            <input type="text" id="fs_saleProductInput" placeholder="পণ্যের নাম টাইপ করুন বা নির্বাচন করুন" required style="width: 100%; box-sizing: border-box;"/>
+                        <div class="custom-dropdown-container" style="margin-bottom: 8px;">
+                            <input type="text" id="fs_saleProductInput" placeholder="পণ্যের নাম টাইপ করুন বা নির্বাচন করুন" required style="width: 100%; box-sizing: border-box;" onfocus="this.scrollIntoView({ behavior: 'smooth', block: 'center' });"/>
                             <input type="hidden" id="fs_saleProductId" />
                             <div id="fs_saleProductList" class="custom-dropdown-list"></div>
                         </div>
-                        <label class="small" style="margin-top: 8px; display: block; margin-bottom: 4px;">Quantity (Default: 1)</label>
-                        <input id="fs_saleQty" type="number" step="0.01" placeholder="Quantity" style="width: 100%; box-sizing: border-box;"/>
-                        <div style="margin-top: 8px"><button type="submit">Save Sale</button></div>
+                        <div style="display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 80px;">
+                                <label class="small" style="display: block; margin-bottom: 4px;">Quantity</label>
+                                <input id="fs_saleQty" type="number" step="any" placeholder="Quantity" style="width: 100%; box-sizing: border-box;" oninput="updateCreditSaleTotal()"/>
+                            </div>
+                            <div style="flex: 1; min-width: 100px;">
+                                <label class="small" style="display: block; margin-bottom: 4px;">Selling Price (per unit)</label>
+                                <input id="fs_salePrice" type="number" step="any" placeholder="Selling Price" required style="width: 100%; box-sizing: border-box;" oninput="updateCreditSaleTotal()"/>
+                            </div>
+                            <div style="flex: 1; min-width: 100px;">
+                                <label class="small" style="display: block; margin-bottom: 4px;">Selling Price (Total)</label>
+                                <input id="fs_saleTotal" type="number" step="any" placeholder="Total Selling Price" required style="width: 100%; box-sizing: border-box;" oninput="updateCreditSalePerUnitPrice()"/>
+                            </div>
+                            <div style="display: flex; gap: 5px;">
+                                <button type="submit">Save Sale</button>
+                                <button type="button" onclick="addFakeSaleFullScreen(event)">Fake Sale</button>
+                            </div>
+                        </div>
                     </form>
                 </div>
                  <div class="col">
                     <form onsubmit="addCustomerPaymentFullScreen(event)">
                         <h4 style="margin-top: 0;">Add Payment</h4>
                         <label class="small" style="display: block; margin-bottom: 4px;">Amount to pay</label>
-                        <input id="fs_duePayment" type="number" step="0.01" placeholder="Amount (৳)" required style="width: 100%; box-sizing: border-box;"/>
+                        <input id="fs_duePayment" type="number" step="any" placeholder="Amount (৳)" required style="width: 100%; box-sizing: border-box;"/>
                         <div style="margin-top: 8px"><button type="submit">Save Payment</button></div>
                     </form>
                  </div>
@@ -281,7 +344,7 @@
                      <form onsubmit="addPreviousDue(event)">
                         <h4 style="margin-top: 0;">Add Previous Due</h4>
                         <label class="small" style="display: block; margin-bottom: 4px;">Previous Due Amount</label>
-                        <input id="previousDueAmount" type="number" step="0.01" placeholder="Amount (৳)" required style="width: 100%; box-sizing: border-box;"/>
+                        <input id="previousDueAmount" type="number" step="any" placeholder="Amount (৳)" required style="width: 100%; box-sizing: border-box;"/>
                         <div style="margin-top: 8px"><button type="submit">Add Due</button></div>
                     </form>
                  </div>
@@ -289,6 +352,7 @@
             
             <div class="row" style="margin-top: 16px;">
                 <div class="col summary" id="fs_profitSummary"></div>
+                <div class="col summary" id="fs_monthlyProfitSummary"></div>
                 <div class="col summary" id="fs_dueSummary"></div>
             </div>
             
@@ -312,8 +376,8 @@
 
 
         <section id="addCustomerSection" class="hidden">
-            <h2>Add Customer</h2>
-            <form onsubmit="addCustomer(event)">
+            <h2><i class="fa-solid fa-user-plus"></i> Add Customer</h2>
+            <form id="addCustomerForm" onsubmit="addCustomer(event)">
                 <input id="newCustomerName" type="text" placeholder="Customer Name" required />
                 <input id="newCustomerMobile" type="tel" placeholder="Mobile Number" />
                 <input id="newCustomerNID" type="text" placeholder="NID Number" />
@@ -323,9 +387,9 @@
             </form>
         </section>
         <section id="products" class="hidden">
-            <h2>Products</h2>
+            <h2><i class="fa-solid fa-boxes-stacked"></i> Products</h2>
             <div class="search-box">
-               <input type="text" id="productSearch" onkeyup="searchProducts()" placeholder="Search Products...">
+               <input type="text" id="productSearch" onkeyup="searchProducts()" placeholder="Search Products..." onfocus="this.scrollIntoView({ behavior: 'smooth', block: 'center' });">
             </div>
             <table>
                 <thead>
@@ -340,16 +404,16 @@
             </table>
         </section>
         <section id="addProductSection" class="hidden">
-            <h2>Add Product</h2>
-            <form onsubmit="addProduct(event)">
+            <h2><i class="fa-solid fa-plus-circle"></i> Add Product</h2>
+            <form id="addProductForm" onsubmit="addProduct(event)">
                 <input id="productName" type="text" placeholder="Product name" required />
                 <div style="display: flex; gap: 8px; margin-top: 8px">
-                    <input id="productQty" type="number" step="0.01" placeholder="Purchased qty" required />
-                    <input id="productCost" type="number" step="0.01" placeholder="Cost per unit (৳)" required />
+                    <input id="productQty" type="number" step="any" placeholder="Purchased qty" required />
+                    <input id="productCost" type="number" step="any" placeholder="Cost per unit (৳)" required />
                 </div>
                 <div style="display: flex; gap: 8px; margin-top: 8px">
-                    <input id="productSelling" type="number" step="0.01" placeholder="Selling price per unit (৳)" required />
-                    <input id="productExpiry" type="text" placeholder="Expiry (MM/YYYY)" />
+                    <input id="productSelling" type="number" step="any" placeholder="Selling price per unit (৳)" required />
+                    <input id="productExpiry" type="text" placeholder="Expiry (DD/MM/YYYY)" />
                 </div>
                 <div style="margin-top: 8px"><input id="agentMobile" type="tel" placeholder="Agent Mobile Number" /></div>
                 <div style="margin-top: 8px"><input id="productImage" type="file" accept="image/*" /></div>
@@ -357,21 +421,21 @@
             </form>
         </section>
         <section id="addStockSection" class="hidden">
-            <h2>Add Stock</h2>
+            <h2><i class="fa-solid fa-box-archive"></i> Add Stock</h2>
             <div class="search-box">
-               <input type="text" id="addStockSearch" onkeyup="searchAddStockProducts()" placeholder="Search Products to add stock...">
+               <input type="text" id="addStockSearch" onkeyup="searchAddStockProducts()" placeholder="Search Products to add stock..." onfocus="this.scrollIntoView({ behavior: 'smooth', block: 'center' });">
             </div>
             <div id="addStockProductList"></div>
         </section>
         <section id="addSaleSection" class="hidden">
-            <h2>Add Sale</h2>
+            <h2><i class="fa-solid fa-cart-plus"></i> Add Sale</h2>
             <div class="search-box">
-               <input type="text" id="addSaleSearch" onkeyup="searchAddSaleProducts()" placeholder="Search Products to add sale...">
+               <input type="text" id="addSaleSearch" onkeyup="searchAddSaleProducts()" placeholder="Search Products to add sale..." onfocus="this.scrollIntoView({ behavior: 'smooth', block: 'center' });">
             </div>
             <div id="addSaleProductList"></div>
         </section>
         <section id="saleRecordSection" class="hidden">
-            <h2>Sale Record (Cash)</h2>
+            <h2><i class="fa-solid fa-receipt"></i> Sale Record (Cash)</h2>
             <h4>Recent Cash Sales</h4>
             <table>
                 <thead><tr><th>Date</th><th>Time</th><th>Product</th><th>Qty</th><th>Total</th><th>Action</th></tr></thead>
@@ -379,13 +443,13 @@
             </table>
         </section>
         <section id="expenses" class="hidden">
-            <h2>Expenses</h2>
+            <h2><i class="fa-solid fa-file-invoice-dollar"></i> Expenses</h2>
             <div class="row">
                 <div class="col">
-                    <form onsubmit="addExpense(event)">
+                    <form id="addExpenseForm" onsubmit="addExpense(event)">
                         <h4>Add Expense</h4>
                         <input id="expenseTitle" type="text" placeholder="Expense name" required />
-                        <input id="expenseAmount" type="number" step="0.01" placeholder="Amount (৳)" required />
+                        <input id="expenseAmount" type="number" step="any" placeholder="Amount (৳)" required />
                         <div style="margin-top: 8px"><button type="submit">Add Expense</button></div>
                     </form>
                 </div>
@@ -400,9 +464,12 @@
         </section>
     </div>
     <script>
-        /* =========================
-           Full single-file manager with IndexedDB (Updated Version with Serial & Date Filter)
-           ========================= */
+        /* ===================================================================
+           Full single-file manager (Optimized & Fixed Version)
+           - Incremental DOM updates instead of full re-renders for speed.
+           - Targeted dashboard updates for better performance.
+           - Added data validation and prevented destructive actions.
+           =================================================================== */
 
         const DB_NAME = 'shopDB';
         const DB_VERSION = 1;
@@ -413,8 +480,41 @@
         let draggedItem = null;
         
         // --- UTILITIES ---
-        const toFixed = v => Number(v || 0).toFixed(2);
+        const toFixed = v => parseFloat(Number(v || 0).toFixed(4));
         const placeholderImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23eee'><rect width='24' height='24'/></svg>";
+        
+        // THIS IS THE CORRECTED FUNCTION
+        const isProductExpired = (expiryStr) => {
+            if (!expiryStr) return false;
+
+            // This regex matches DD/MM/YY or DD/MM/YYYY formats
+            const dmyParts = expiryStr.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2}|\d{4})$/);
+            if (dmyParts) {
+                const day = parseInt(dmyParts[1], 10);
+                const month = parseInt(dmyParts[2], 10) - 1; // JS months are 0-indexed
+                let year = parseInt(dmyParts[3], 10);
+
+                if (year < 100) { // Handle YY format, e.g., 25 becomes 2025
+                    year += 2000;
+                }
+                const expiryDate = new Date(year, month, day);
+                expiryDate.setHours(23, 59, 59, 999); // Check against the end of the day
+                return expiryDate < new Date();
+            }
+
+            // Fallback for the original MM/YYYY format
+            const myParts = expiryStr.match(/^(\d{1,2})[\/\-\.](\d{4})$/);
+            if (myParts) {
+                const month = parseInt(myParts[1], 10);
+                const year = parseInt(myParts[2], 10);
+                const expiryDate = new Date(year, month, 0); // Last day of the expiry month
+                 expiryDate.setHours(23, 59, 59, 999);
+                return expiryDate < new Date();
+            }
+
+            return false; // Not a recognized format
+        };
+
         const getCurrentDateTime = () => {
             const now = new Date();
             const date = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
@@ -426,13 +526,13 @@
             const time = String(hours).padStart(2, '0') + ':' + minutes + ' ' + ampm;
             return { date, time };
         };
-        // Helper to parse DD/MM/YYYY date strings for comparison
         const parseDMY = (dateString) => {
             if (!dateString) return null;
-            const [day, month, year] = dateString.split('/');
+            const parts = dateString.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+            if (!parts) return null;
+            const [, day, month, year] = parts;
             return new Date(year, month - 1, day);
         };
-
 
         // --- DATABASE HELPERS ---
         async function getStore(storeName, mode = 'readonly') {
@@ -469,15 +569,23 @@
           }
         }
         const dbAction = (storeName, action, ...args) => new Promise(async (resolve, reject) => {
-            const store = await getStore(storeName, ['put', 'delete', 'add'].includes(action) ? 'readwrite' : 'readonly');
-            const request = store[action](...args);
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
+            try {
+                const store = await getStore(storeName, ['put', 'delete', 'add'].includes(action) ? 'readwrite' : 'readonly');
+                const request = store[action](...args);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = (e) => {
+                    console.error(`DB Action Error (${action} on ${storeName}):`, e.target.error);
+                    alert(`Database operation failed: ${e.target.error.message}. Please check the console for details.`);
+                    reject(e.target.error);
+                };
+            } catch (error) {
+                reject(error);
+            }
         });
-
         const getAll = (storeName) => dbAction(storeName, 'getAll');
         const getOne = (storeName, key) => dbAction(storeName, 'get', key);
         const put = (storeName, item) => dbAction(storeName, 'put', item);
+        const add = (storeName, item) => dbAction(storeName, 'add', item);
         const deleteItem = (storeName, id) => dbAction(storeName, 'delete', id);
 
         // --- NAVIGATION & UI ---
@@ -486,14 +594,11 @@
             document.getElementById(id).classList.remove('hidden');
             document.getElementById('mainNav').classList.add('hidden');
             const renderMap = {
-                'dashboard': renderDashboard,
-                'customers': renderCustomers,
-                'products': renderProducts,
-                'addSaleSection': renderAddSalePage,
-                'addStockSection': renderAddStockPage,
-                'saleRecordSection': renderSaleRecord,
-                'expenses': renderExpenses,
-                'customerFullScreen': renderCustomerFullScreenView
+                'dashboard': renderDashboard, 'customers': renderCustomers, 'products': renderProducts,
+                'addSaleSection': renderAddSalePage, 'addStockSection': renderAddStockPage,
+                'saleRecordSection': renderSaleRecord, 'expenses': renderExpenses,
+                'customerFullScreen': renderCustomerFullScreenView,
+                'todaySaleSection': renderTodaySaleSection
             };
             if (renderMap[id]) await renderMap[id]();
         }
@@ -524,21 +629,9 @@
         async function checkAndDisplayExpiryNotifications() {
             const products = await getAll('products');
             const notificationArea = document.getElementById('expiry-notification-area');
-            const now = new Date();
-            now.setDate(1); now.setHours(0, 0, 0, 0);
-
-            const expiredProducts = products.filter(p => {
-                if (!p.expiry || !/^\d{1,2}\/\d{4}$/.test(p.expiry)) return false;
-                const [month, year] = p.expiry.split('/');
-                return new Date(parseInt(year), parseInt(month) - 1, 1) < now;
-            }).map(p => p.name);
-
+            const expiredProducts = products.filter(p => isProductExpired(p.expiry)).map(p => p.name);
             if (expiredProducts.length > 0) {
-                notificationArea.innerHTML = `
-                    <div style="border: 2px solid #ff0033; border-radius: 14px; padding: 12px; background-color: #fff0f0;">
-                        <h4 style="margin: 0 0 8px; color: #ff0033;">⚠️ সতর্কতা: কিছু পণ্যের মেয়াদ শেষ হয়ে গেছে!</h4>
-                        <ul style="margin: 0; padding-left: 20px;">${expiredProducts.map(name => `<li>${name}</li>`).join('')}</ul>
-                    </div>`;
+                notificationArea.innerHTML = `<div style="border: 2px solid #ff0033; border-radius: 14px; padding: 12px; background-color: #fff0f0;"><h4 style="margin: 0 0 8px; color: #ff0033;">⚠️ সতর্কতা: কিছু পণ্যের মেয়াদ শেষ হয়ে গেছে!</h4><ul style="margin: 0; padding-left: 20px;">${expiredProducts.map(name => `<li>${name}</li>`).join('')}</ul></div>`;
             } else {
                 notificationArea.innerHTML = '';
             }
@@ -549,19 +642,33 @@
             localStorage.setItem('initial_cash', toFixed(document.getElementById('initialCash').value));
             renderDashboard();
         }
+
+        // OPTIMIZED: Incremental dashboard updates
+        function updateDashboardValues(changes) {
+            const getVal = id => parseFloat(document.getElementById(id).innerText.replace('—', '0'));
+            const setVal = (id, value) => { document.getElementById(id).innerText = toFixed(value); };
+
+            if (changes.sales)      { setVal('totalSales', getVal('totalSales') + changes.sales); }
+            if (changes.purchase)   { setVal('totalPurchase', getVal('totalPurchase') + changes.purchase); setVal('cashInHand', getVal('cashInHand') - changes.purchase); setVal('totalStockValue', getVal('totalStockValue') + changes.purchase); }
+            if (changes.expense)    { setVal('totalExpenses', getVal('totalExpenses') + changes.expense); setVal('cashInHand', getVal('cashInHand') - changes.expense); if(mode === 'details') setVal('totalProfit', getVal('totalProfit') - changes.expense);}
+            if (changes.profit && mode === 'details') { setVal('totalProfit', getVal('totalProfit') + changes.profit); }
+            if (changes.creditSale) { setVal('totalCreditSales', getVal('totalCreditSales') + changes.creditSale); }
+            if (changes.cashSale)   { setVal('totalCashSales', getVal('totalCashSales') + changes.cashSale); setVal('cashInHand', getVal('cashInHand') + changes.cashSale); }
+            if (changes.paymentIn)  { setVal('totalCreditSales', getVal('totalCreditSales') - changes.paymentIn); setVal('cashInHand', getVal('cashInHand') + changes.paymentIn); }
+            if (changes.stockOut)   { setVal('totalStockValue', getVal('totalStockValue') - changes.stockOut); }
+        }
+        
+        // Full render function, used for initial load and filtering
         async function renderDashboard() {
             const [transactions, products, expenses] = await Promise.all([getAll('transactions'), getAll('products'), getAll('expenses')]);
             const dateFilter = document.getElementById('dateFilter').value;
             const monthFilter = document.getElementById('monthFilter').value;
             const isFilterActive = dateFilter || monthFilter;
 
-            let filteredTxs = transactions;
-            let filteredExpenses = expenses;
-            let filteredProductsForPurchase = products;
-            let totalStockValue = 0;
+            let filteredTxs = transactions, filteredExpenses = expenses, filteredProductsForPurchase = products, totalStockValue = 0;
 
             if (isFilterActive) {
-                let filterStartDate, filterEndDate;
+                let filterEndDate;
                 if (dateFilter) {
                     const [year, month, day] = dateFilter.split('-');
                     const formattedDate = `${day}/${month}/${year}`; 
@@ -572,94 +679,177 @@
                 } else if (monthFilter) {
                     const [year, month] = monthFilter.split('-');
                     const formattedMonth = `${parseInt(month)}/${year}`;
-                    filteredTxs = transactions.filter(t => t.date && t.date.endsWith(formattedMonth));
-                    filteredExpenses = expenses.filter(e => e.date && e.date.endsWith(formattedMonth));
-                    filteredProductsForPurchase = products.filter(p => p.purchaseDate && p.purchaseDate.endsWith(formattedMonth));
-                    filterEndDate = new Date(year, month, 0); // Last day of the month
+                    filteredTxs = transactions.filter(t => t.date && t.date.endsWith(`/${formattedMonth}`));
+                    filteredExpenses = expenses.filter(e => e.date && e.date.endsWith(`/${formattedMonth}`));
+                    filteredProductsForPurchase = products.filter(p => p.purchaseDate && p.purchaseDate.endsWith(`/${formattedMonth}`));
+                    filterEndDate = new Date(year, month, 0); 
                 }
-                
-                // --- Historical Stock Value Calculation ---
                 const transactionsUpToDate = transactions.filter(t => parseDMY(t.date) <= filterEndDate);
                 const productsUpToDate = products.filter(p => parseDMY(p.purchaseDate) <= filterEndDate);
-                
-                const soldMap = transactionsUpToDate.reduce((map, tx) => {
-                    map[tx.productId] = (map[tx.productId] || 0) + tx.qty;
-                    return map;
-                }, {});
-
+                const soldMap = transactionsUpToDate.reduce((map, tx) => { map[tx.productId] = (map[tx.productId] || 0) + tx.qty; return map; }, {});
                 totalStockValue = productsUpToDate.reduce((sum, p) => {
-                    const soldQty = soldMap[p.id] || 0;
-                    const stockQty = p.purchased - soldQty;
-                    if (stockQty > 0) {
-                        sum += stockQty * p.cost;
-                    }
-                    return sum;
+                    const stockQty = p.purchased - (soldMap[p.id] || 0);
+                    return stockQty > 0 ? sum + (stockQty * p.cost) : sum;
                 }, 0);
-
             } else {
-                // --- Default (no filter) calculations ---
                 totalStockValue = products.reduce((s, p) => s + ((p.purchased - p.sold) * p.cost), 0);
             }
 
             const creditSales = filteredTxs.filter(t => t.type === 'credit').reduce((s, t) => s + t.total, 0);
             const cashSales = filteredTxs.filter(t => t.type === 'cash').reduce((s, t) => s + t.total, 0);
             const payments = filteredTxs.filter(t => t.type === 'payment').reduce((s, t) => s + t.amount, 0);
-            
             const totalPurchase = filteredProductsForPurchase.reduce((s, p) => s + (p.purchased * p.cost), 0);
-            const totalExpenses = filteredExpenses.reduce((s, e) => s + e.amount, 0);
-
+            const totalExpensesVal = filteredExpenses.reduce((s, e) => s + e.amount, 0);
             const profitBeforeExpenses = filteredTxs.filter(t => ['credit', 'cash'].includes(t.type)).reduce((s, t) => {
-                if (t.productId === 0) { 
-                    return s; 
+                if (t.productId === 0) {
+                    return s + (t.total * 0.10);
                 }
+                if (t.isFake) { return s + t.total; }
                 const prod = products.find(p => p.id === t.productId);
-                if (!prod) return s;
-                return s + (((t.sellingPrice || prod.selling) - prod.cost) * t.qty);
+                return prod ? s + (((t.sellingPrice || prod.selling) - prod.cost) * t.qty) : s;
             }, 0);
             
             const initialCash = parseFloat(localStorage.getItem('initial_cash') || 0);
-            
             document.getElementById('initialCash').value = toFixed(initialCash);
             document.getElementById('totalSales').innerText = toFixed(creditSales + cashSales);
             document.getElementById('totalCreditSales').innerText = toFixed(creditSales - payments);
             document.getElementById('totalCashSales').innerText = toFixed(cashSales);
-            document.getElementById('cashInHand').innerText = toFixed(initialCash + cashSales + payments - totalExpenses - totalPurchase);
+            document.getElementById('cashInHand').innerText = toFixed(initialCash + cashSales + payments - totalExpensesVal - totalPurchase);
             document.getElementById('totalStockValue').innerText = toFixed(totalStockValue);
             document.getElementById('totalPurchase').innerText = toFixed(totalPurchase);
-            document.getElementById('totalExpenses').innerText = toFixed(totalExpenses);
-
-            if (mode === 'details') {
-                document.getElementById('totalProfit').innerText = toFixed(profitBeforeExpenses - totalExpenses);
-            } else {
-                document.getElementById('totalProfit').innerText = '—';
-            }
+            document.getElementById('totalExpenses').innerText = toFixed(totalExpensesVal);
+            document.getElementById('totalProfit').innerText = mode === 'details' ? toFixed(profitBeforeExpenses - totalExpensesVal) : '—';
             await checkAndDisplayExpiryNotifications();
         }
 
+        // --- TODAY'S SALE SECTION ---
+        async function renderTodaySaleSection(filter = 'all') {
+            const today = getCurrentDateTime().date;
+            const [transactions, products] = await Promise.all([getAll('transactions'), getAll('products')]);
+            const productMap = new Map(products.map(p => [p.id, p]));
+
+            const todaysTransactions = transactions.filter(tx =>
+                tx.date === today &&
+                ['cash', 'credit'].includes(tx.type) &&
+                (filter === 'all' || tx.type === filter)
+            );
+
+            const salesSummary = new Map();
+
+            for (const tx of todaysTransactions) {
+                if (tx.productId === 0) continue; // Skip previous due for this report
+                const product = productMap.get(tx.productId);
+                if (!product) continue; // Skip if product is deleted
+
+                const profit = (tx.sellingPrice - product.cost) * tx.qty;
+
+                if (!salesSummary.has(product.id)) {
+                    salesSummary.set(product.id, {
+                        name: product.name,
+                        image: product.image || placeholderImg,
+                        totalQty: 0,
+                        totalProfit: 0,
+                        totalSale: 0
+                    });
+                }
+
+                const summary = salesSummary.get(product.id);
+                summary.totalQty += tx.qty;
+                summary.totalProfit += profit;
+                summary.totalSale += tx.total;
+            }
+
+            const listEl = document.getElementById('todaySalesList');
+            let totalQty = 0;
+            let totalProfit = 0;
+            let totalSale = 0;
+            let html = '';
+
+            salesSummary.forEach(summary => {
+                html += `
+                    <tr>
+                        <td><img src="${summary.image}" class="thumb" onerror="this.src='${placeholderImg}'"></td>
+                        <td>${summary.name}</td>
+                        <td>${toFixed(summary.totalQty)}</td>
+                        <td>${toFixed(summary.totalProfit)}</td>
+                        <td>${toFixed(summary.totalSale)}</td>
+                    </tr>`;
+                totalQty += summary.totalQty;
+                totalProfit += summary.totalProfit;
+                totalSale += summary.totalSale;
+            });
+            
+            if (salesSummary.size === 0) {
+                 html = `<tr><td colspan="5">No sales recorded today.</td></tr>`;
+            }
+
+            listEl.innerHTML = html;
+            document.getElementById('todaySaleTotalQty').innerHTML = `<strong>${toFixed(totalQty)}</strong>`;
+            document.getElementById('todaySaleTotalProfit').innerHTML = `<strong>৳ ${toFixed(totalProfit)}</strong>`;
+            document.getElementById('todaySaleTotalAmount').innerHTML = `<strong>৳ ${toFixed(totalSale)}</strong>`;
+        }
+
+
         // --- CUSTOMERS ---
         const createCustomerLi = (c, due, index) => `
-            <li data-id="${c.id}" style="list-style: none; margin: 6px 0; display: flex; align-items: center; padding: 5px; border-bottom: 1px solid var(--border);">
-                <strong style="margin-right: 5px;">${index + 1}.</strong>
-                <label for="cust-img-upload-${c.id}">
-                    <img src="${c.image || ''}" class="thumb" style="cursor:pointer;" onerror="this.src='${placeholderImg}'">
-                </label>
-                <input type="file" id="cust-img-upload-${c.id}" accept="image/*" style="display:none;" onchange="editCustomerImage(${c.id}, event)">
-                <div style="flex-grow: 1; margin-left: 10px;">
-                    <span contenteditable="true" onblur="editCustomerName(${c.id}, this.innerText.trim())">${c.name}</span> <br> <span class="small">Due: ৳ ${toFixed(due)}</span>
+            <li data-id="${c.id}" style="list-style: none; margin: 6px 0; display: flex; align-items: flex-start; padding: 8px 5px; border-bottom: 1px solid var(--border);">
+                <div style="display: flex; flex-direction: column; align-items: center; margin-right: 10px;">
+                    <strong>${index + 1}.</strong>
+                    <label for="cust-img-upload-${c.id}"><img src="${c.image || ''}" class="thumb" style="cursor:pointer; margin-top: 5px;" onerror="this.src='${placeholderImg}'"></label>
+                    <input type="file" id="cust-img-upload-${c.id}" accept="image/*" style="display:none;" onchange="editCustomerImage(${c.id}, event)">
                 </div>
-                <button style="margin-left:8px" onclick="openCustomerFullScreenView('${c.name.replaceAll("'", "\\'")}')">Open here</button>
-                <button class="deleteBtn" style="margin-left: 8px; background-color: #ff8c00;" onclick="handleStolen('${c.name.replaceAll("'", "\\'")}')">Stolen</button>
+                <div style="flex-grow: 1; line-height: 1.6;">
+                    <div><strong>Name:</strong> <span contenteditable="true" onblur="editCustomerField(${c.id}, 'name', this.innerText.trim())">${c.name}</span></div>
+                    <div class="small"><strong>Mobile:</strong> <span contenteditable="true" onblur="editCustomerField(${c.id}, 'mobile', this.innerText.trim())">${c.mobile || ''}</span></div>
+                    <div class="small"><strong>NID:</strong> <span contenteditable="true" onblur="editCustomerField(${c.id}, 'nid', this.innerText.trim())">${c.nid || ''}</span></div>
+                    <div class="small"><strong>Reference:</strong> <span contenteditable="true" onblur="editCustomerField(${c.id}, 'reference', this.innerText.trim())">${c.reference || ''}</span></div>
+                    <div class="small" style="font-weight: bold; margin-top: 4px;">Due: ৳ ${toFixed(due)}</div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 5px; align-items: flex-end;">
+                     <button style="padding: 4px 8px; font-size: 12px;" onclick="openCustomerFullScreenView('${c.name.replaceAll("'", "\\'")}')">Open</button>
+                     <button class="deleteBtn" style="padding: 4px 8px; font-size: 12px; background-color: #ff8c00;" onclick="handleStolen('${c.name.replaceAll("'", "\\'")}')">Stolen</button>
+                </div>
             </li>`;
         
         async function renderCustomers() {
-            const [customers, transactions] = await Promise.all([getAll('customers'), getAll('transactions')]);
-            const customerDues = customers.map(c => {
-                const custTx = transactions.filter(t => t.customer === c.name);
-                const sales = custTx.filter(t => t.type === 'credit').reduce((s, t) => s + t.total, 0);
-                const payments = custTx.filter(t => t.type === 'payment').reduce((s, t) => s + t.amount, 0);
-                return { ...c, due: sales - payments };
-            });
-            document.getElementById('customerList').innerHTML = customerDues.map((c, i) => createCustomerLi(c, c.due, i)).join('');
+            const [customers, transactions, products] = await Promise.all([getAll('customers'), getAll('transactions'), getAll('products')]);
+            
+            // Calculate total due
+            const duesMap = transactions.reduce((map, tx) => {
+                if (tx.customer) {
+                    if (tx.type === 'credit') map[tx.customer] = (map[tx.customer] || 0) + tx.total;
+                    else if (tx.type === 'payment') map[tx.customer] = (map[tx.customer] || 0) - tx.amount;
+                }
+                return map;
+            }, {});
+            const totalDue = Object.values(duesMap).reduce((sum, due) => sum + due, 0);
+            document.getElementById('customersTotalDue').innerText = toFixed(totalDue);
+
+            // Calculate profits from credit sales
+            const creditSaleTxs = transactions.filter(t => t.type === 'credit');
+            const totalProfitFromDues = creditSaleTxs.reduce((s, t) => {
+                if (t.productId === 0) return s + (t.total * 0.10);
+                if (t.isFake) return s + t.total;
+                const prod = products.find(p => p.id === t.productId);
+                return prod ? s + (((t.sellingPrice || prod.selling) - prod.cost) * t.qty) : s;
+            }, 0);
+            document.getElementById('totalProfitFromDues').innerText = toFixed(totalProfitFromDues);
+
+            // Calculate current month profit from credit sales
+            const now = new Date();
+            const currentMonthSuffix = `/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
+            const currentMonthProfitFromDues = creditSaleTxs
+                .filter(t => t.date && t.date.endsWith(currentMonthSuffix))
+                .reduce((s, t) => {
+                    if (t.productId === 0) return s + (t.total * 0.10);
+                    if (t.isFake) return s + t.total;
+                    const prod = products.find(p => p.id === t.productId);
+                    return prod ? s + (((t.sellingPrice || prod.selling) - prod.cost) * t.qty) : s;
+                }, 0);
+            document.getElementById('currentMonthProfitFromDues').innerText = toFixed(currentMonthProfitFromDues);
+            
+            // Render customer list
+            document.getElementById('customerList').innerHTML = customers.map((c, i) => createCustomerLi(c, duesMap[c.name] || 0, i)).join('');
         }
         
         async function addCustomer(event) {
@@ -669,71 +859,67 @@
             const customers = await getAll('customers');
             if (customers.some(c => c.name.toLowerCase() === name.toLowerCase())) return alert('Customer exists');
 
-            const c = {
-                name,
-                mobile: document.getElementById('newCustomerMobile').value.trim(),
-                nid: document.getElementById('newCustomerNID').value.trim(),
-                reference: document.getElementById('newCustomerReference').value.trim(),
-                image: ''
-            };
+            const c = { name, mobile: document.getElementById('newCustomerMobile').value.trim(), nid: document.getElementById('newCustomerNID').value.trim(), reference: document.getElementById('newCustomerReference').value.trim(), image: '' };
             const finalize = async (img = '') => {
                 c.image = img;
-                await put('customers', c);
-                await renderCustomers(); 
-                event.target.reset();
+                const newId = await add('customers', c); 
+                const newCustomer = await getOne('customers', newId);
+                const customerList = document.getElementById('customerList');
+                const newIndex = customerList.children.length;
+                customerList.insertAdjacentHTML('beforeend', createCustomerLi(newCustomer, 0, newIndex)); 
+                document.getElementById('addCustomerForm').reset();
                 showSection('customers');
             };
 
             const imageFile = document.getElementById('newCustomerImage').files[0];
-            if (imageFile) {
-                const reader = new FileReader();
-                reader.onloadend = () => finalize(reader.result);
-                reader.readAsDataURL(imageFile);
-            } else {
-                finalize();
-            }
+            if (imageFile) new FileReader().onloadend = e => finalize(e.target.result); else finalize();
         }
 
-        async function editCustomerName(customerId, newName) {
-            if (!newName) return renderCustomers(); 
-
-            const customers = await getAll('customers');
-            const customer = customers.find(c => c.id === customerId);
+        async function editCustomerField(customerId, field, value) {
+            const customer = await getOne('customers', customerId);
             if (!customer) return;
 
-            const oldName = customer.name;
-            if (oldName === newName) return; 
+            if (field === 'name') {
+                if (!value) {
+                    alert("Customer name cannot be empty.");
+                    return renderCustomers();
+                }
+                const oldName = customer.name;
+                if (oldName === value) return;
+                
+                const allCustomers = await getAll('customers');
+                if (allCustomers.some(c => c.name.toLowerCase() === value.toLowerCase() && c.id !== customerId)) {
+                    alert(`Customer with name "${value}" already exists.`);
+                    return renderCustomers();
+                }
 
-            if (customers.some(c => c.name.toLowerCase() === newName.toLowerCase() && c.id !== customerId)) {
-                alert(`Customer with name "${newName}" already exists.`);
-                return renderCustomers();
-            }
-
-            customer.name = newName;
-            await put('customers', customer);
-
-            const allTxs = await getAll('transactions');
-            const customerTxs = allTxs.filter(t => t.customer === oldName);
-            const updatePromises = customerTxs.map(tx => {
-                tx.customer = newName;
-                return put('transactions', tx);
-            });
-
-            await Promise.all(updatePromises);
-            
-            if (currentCustomer === oldName) {
-                currentCustomer = newName;
-                await renderCustomerFullScreenView(); 
+                customer.name = value;
+                await put('customers', customer);
+                
+                const allTxs = await getAll('transactions');
+                const updatePromises = allTxs.filter(t => t.customer === oldName).map(tx => {
+                    tx.customer = value;
+                    return put('transactions', tx);
+                });
+                await Promise.all(updatePromises);
+                
+                if (currentCustomer === oldName) {
+                    currentCustomer = value;
+                    if (!document.getElementById('customerFullScreen').classList.contains('hidden')) {
+                         await renderCustomerFullScreenView();
+                    }
+                }
+            } else {
+                customer[field] = value;
+                await put('customers', customer);
             }
         }
         
         async function editCustomerImage(id, event) {
-            const file = event.target.files[0];
-            if (!file) return;
+            const file = event.target.files[0]; if (!file) return;
             const reader = new FileReader();
             reader.onloadend = async () => {
-                const customer = await getOne('customers', id);
-                customer.image = reader.result;
+                const customer = await getOne('customers', id); customer.image = reader.result;
                 await put('customers', customer);
                 document.querySelector(`li[data-id='${id}'] img`).src = reader.result;
             };
@@ -745,46 +931,45 @@
             const [allTxs, allProducts] = await Promise.all([getAll('transactions'), getAll('products')]);
             const custTxs = allTxs.filter(t => t.customer === customerName);
             const creditSales = custTxs.filter(t => t.type === 'credit');
-
             let totalCost = creditSales.reduce((sum, sale) => {
-                if (sale.productId === 0) return sum + sale.total; // Previous due is full loss
+                if (sale.productId === 0) return sum; // FIX: "Previous Due" has no cost of goods
                 const product = allProducts.find(p => p.id === sale.productId);
                 return sum + (product ? (product.cost * sale.qty) : 0);
             }, 0);
-
             if (totalCost > 0) {
                 const { date, time } = getCurrentDateTime();
-                await put('expenses', { title: `Debt Write-off/Loss (Customer: ${customerName})`, amount: totalCost, date, time });
+                await add('expenses', { title: `Debt Write-off/Loss (Customer: ${customerName})`, amount: totalCost, date, time });
+                updateDashboardValues({ expense: totalCost, profit: -totalCost });
             }
-
             await Promise.all(custTxs.map(tx => deleteItem('transactions', tx.id)));
             alert(`Loss of ৳${toFixed(totalCost)} recorded. Customer '${customerName}'s due cleared.`);
             await renderCustomers();
-            await renderDashboard();
             if (currentCustomer === customerName) await renderCustomerFullScreenView();
         }
         
-        function openCustomerInNewTab() {
-            if (!currentCustomer) return alert('No customer selected');
-            window.open(`${window.location.pathname}?customer=${encodeURIComponent(currentCustomer)}`, '_blank');
-        }
-        function openCustomerInNewTabByName(encodedName) {
-            window.open(`${window.location.pathname}?customer=${encodedName}`, '_blank');
-        }
-        async function openCustomerFullScreenView(c) {
-            currentCustomer = c;
-            showSection('customerFullScreen');
-        }
+        function openCustomerInNewTab() { if (currentCustomer) window.open(`${window.location.pathname}?customer=${encodeURIComponent(currentCustomer)}`, '_blank'); }
+        async function openCustomerFullScreenView(c) { currentCustomer = c; showSection('customerFullScreen'); }
 
         async function deleteCustomer(c) {
-            if (!c || !confirm(`Delete customer ${c} and all associated transactions?`)) return;
-            const customer = (await getAll('customers')).find(cust => cust.name === c);
-            if (!customer) return;
-
+            if (!c || !confirm(`Delete customer ${c} and all associated transactions? This action cannot be undone.`)) return;
+            const customer = (await getAll('customers')).find(cust => cust.name === c); if (!customer) return;
             const [allTxs, allProducts] = await Promise.all([getAll('transactions'), getAll('products')]);
-            const custTxs = allTxs.filter(t => t.customer === c && t.type === 'credit');
+            
+            const custTxs = allTxs.filter(tx => tx.customer === c);
+            const sales = custTxs.filter(t => t.type === 'credit').reduce((s, t) => s + t.total, 0);
+            const payments = custTxs.filter(t => t.type === 'payment').reduce((s, t) => s + t.amount, 0);
+            const due = sales - payments;
+
+            if (due > 0) {
+                const { date, time } = getCurrentDateTime();
+                const expense = { title: `Debt Write-off (Deleted Customer: ${c})`, amount: due, date, time };
+                await add('expenses', expense);
+                updateDashboardValues({ expense: due, creditSale: -due });
+                alert(`Customer's outstanding due of ৳${toFixed(due)} has been recorded as a loss.`);
+            }
+
             for (const t of custTxs) {
-                if (t.productId !== 0) {
+                if (t.type === 'credit' && t.productId !== 0) {
                     const p = allProducts.find(prod => prod.id === t.productId);
                     if (p) {
                         p.sold -= t.qty;
@@ -793,219 +978,250 @@
                 }
                 await deleteItem('transactions', t.id);
             }
-            await deleteItem('customers', customer.id);
             
-            showSection('customers');
+            await deleteItem('customers', customer.id);
             await renderDashboard();
+            showSection('customers');
         }
 
         async function renderCustomerFullScreenView() {
             if (!currentCustomer) return;
             const customer = (await getAll('customers')).find(c => c.name === currentCustomer);
             if(!customer) return showSection('customers');
-
-            document.getElementById('fs_custTitle').innerHTML = `Details — <span contenteditable="true" onblur="editCustomerName(${customer.id}, this.innerText.trim())">${currentCustomer}</span>`;
-
+            document.getElementById('fs_custTitle').innerHTML = `Details — <span contenteditable="true" onblur="editCustomerField(${customer.id}, 'name', this.innerText.trim())">${currentCustomer}</span>`;
             const [transactions, products] = await Promise.all([getAll('transactions'), getAll('products')]);
             const custTx = transactions.filter(t => t.customer === currentCustomer);
-
             const salesHtml = custTx.filter(t => t.type === 'credit').map(tx => {
                 let prod, profit, cost = 0, sellingPrice = tx.sellingPrice;
-                if (tx.productId === 0) { // Previous Due entry
+                if (tx.productId === 0) {
                     prod = { name: 'Previous Due', cost: 0, selling: tx.total };
-                    profit = 0; // Previous due is not profit
+                    profit = tx.total * 0.10;
                     cost = 0;
                     sellingPrice = tx.total;
-                } else {
-                    prod = products.find(p => p.id === tx.productId) || { name: '(deleted)', cost: 0, selling: 0 };
-                    sellingPrice = tx.sellingPrice || prod.selling;
-                    profit = (sellingPrice - prod.cost) * tx.qty;
-                    cost = prod.cost;
+                } 
+                else { 
+                    prod = products.find(p => p.id === tx.productId) || { name: '(deleted)', cost: 0, selling: 0 }; 
+                    sellingPrice = tx.sellingPrice || prod.selling; 
+                    if (tx.isFake) { profit = tx.total; }
+                    else { profit = (sellingPrice - prod.cost) * tx.qty; }
+                    cost = prod.cost; 
                 }
-                
-                return `<tr data-id="${tx.id}">
-                    <td contenteditable="true" onblur="editTransactionField(${tx.id}, 'date', this.innerText)">${tx.date}</td>
-                    <td contenteditable="true" onblur="editTransactionField(${tx.id}, 'time', this.innerText)">${tx.time}</td>
-                    <td ${tx.productId !== 0 ? `contenteditable="true" onblur="editTransactionProduct(${tx.id}, this.innerText)"` : ''}>${prod.name}</td>
-                    <td ${tx.productId !== 0 ? `contenteditable="true" onblur="editTransactionQty(${tx.id}, this.innerText)"` : ''}>${toFixed(tx.qty)}</td>
-                    <td>${toFixed(cost)}</td><td>${toFixed(sellingPrice)}</td>
-                    <td>৳ ${toFixed(tx.total)}</td><td>৳ ${toFixed(profit)}</td>
-                    <td><button class="deleteBtn" onclick="deleteTransaction(${tx.id})">Delete</button></td>
-                </tr>`;
+                return `<tr data-id="${tx.id}"> <td contenteditable="true" onblur="editTransactionField(this, ${tx.id}, 'date', this.innerText)">${tx.date}</td> <td contenteditable="true" onblur="editTransactionField(this, ${tx.id}, 'time', this.innerText)">${tx.time}</td> <td>${prod.name}</td> <td ${tx.productId !== 0 ? `contenteditable="true" onblur="editTransactionQty(this, ${tx.id}, this.innerText)"` : ''}>${toFixed(tx.qty)}</td> <td>${toFixed(cost)}</td><td>${toFixed(sellingPrice)}</td> <td>৳ ${toFixed(tx.total)}</td><td>৳ ${toFixed(profit)}</td> <td><button class="deleteBtn" onclick="deleteTransaction(${tx.id})">Delete</button></td> </tr>`;
             }).join('');
             document.getElementById('fs_customerSalesTransactions').innerHTML = salesHtml;
-
-            const paymentsHtml = custTx.filter(t => t.type === 'payment').map(tx => `
-                <tr data-id="${tx.id}">
-                    <td contenteditable="true" onblur="editTransactionField(${tx.id}, 'date', this.innerText)">${tx.date}</td>
-                    <td contenteditable="true" onblur="editTransactionField(${tx.id}, 'time', this.innerText)">${tx.time}</td>
-                    <td contenteditable="true" onblur="editTransactionField(${tx.id}, 'amount', this.innerText.replace('৳', '').trim())">৳ ${toFixed(tx.amount)}</td>
-                    <td><button class="deleteBtn" onclick="deleteTransaction(${tx.id})">Delete</button></td>
-                </tr>`).join('');
+            const paymentsHtml = custTx.filter(t => t.type === 'payment').map(tx => ` <tr data-id="${tx.id}"> <td contenteditable="true" onblur="editTransactionField(this, ${tx.id}, 'date', this.innerText)">${tx.date}</td> <td contenteditable="true" onblur="editTransactionField(this, ${tx.id}, 'time', this.innerText)">${tx.time}</td> <td contenteditable="true" onblur="editTransactionField(this, ${tx.id}, 'amount', this.innerText.replace('৳', '').trim())">৳ ${toFixed(tx.amount)}</td> <td><button class="deleteBtn" onclick="deleteTransaction(${tx.id})">Delete</button></td> </tr>`).join('');
             document.getElementById('fs_customerPaymentHistory').innerHTML = paymentsHtml;
-
-            await updateCustomerSummaries(true); // true for full screen
-            await fillSaleProductOptions(true); // true for full screen
+            await updateCustomerSummaries(true);
+            await fillSaleProductOptions(true);
         }
         
         async function updateCustomerSummaries(isFullScreen = false) {
             const [transactions, products] = await Promise.all([getAll('transactions'), getAll('products')]);
             const custTx = transactions.filter(t => t.customer === currentCustomer);
-            
-            const profit = custTx.filter(t => t.type === 'credit').reduce((s, t) => {
-                if (t.productId === 0) return s; 
-                const prod = products.find(p => p.id === t.productId);
-                const sellingPrice = t.sellingPrice || (prod ? prod.selling : 0);
-                return s + ((sellingPrice - (prod ? prod.cost : 0)) * t.qty);
-            }, 0);
-            
-            const sales = custTx.filter(t => t.type === 'credit').reduce((s, t) => s + t.total, 0);
-            const payments = custTx.filter(t => t.type === 'payment').reduce((s, t) => s + t.amount, 0);
+            const creditTxs = custTx.filter(t => t.type === 'credit');
 
+            const totalProfit = creditTxs.reduce((s, t) => {
+                if (t.productId === 0) return s + (t.total * 0.10);
+                if (t.isFake) return s + t.total;
+                const prod = products.find(p => p.id === t.productId);
+                return s + (((t.sellingPrice || (prod ? prod.selling : 0)) - (prod ? prod.cost : 0)) * t.qty);
+            }, 0);
+
+            const now = new Date();
+            const currentMonthSuffix = `/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
+            const monthlyProfit = creditTxs
+                .filter(t => t.date && t.date.endsWith(currentMonthSuffix))
+                .reduce((s, t) => {
+                    if (t.productId === 0) return s + (t.total * 0.10);
+                    if (t.isFake) return s + t.total;
+                    const prod = products.find(p => p.id === t.productId);
+                    return s + (((t.sellingPrice || (prod ? prod.selling : 0)) - (prod ? prod.cost : 0)) * t.qty);
+                }, 0);
+
+            const sales = creditTxs.reduce((s, t) => s + t.total, 0);
+            const payments = custTx.filter(t => t.type === 'payment').reduce((s, t) => s + t.amount, 0);
+            
             if (isFullScreen) {
-                document.getElementById('fs_profitSummary').innerHTML = `<strong>Total Profit:</strong> ৳ ${toFixed(profit)}`;
+                if (mode === 'details') {
+                    document.getElementById('fs_profitSummary').innerHTML = `<strong>Total Profit:</strong> ৳ ${toFixed(totalProfit)}`;
+                    document.getElementById('fs_monthlyProfitSummary').innerHTML = `<strong>Current Month Profit:</strong> ৳ ${toFixed(monthlyProfit)}`;
+                } else {
+                    document.getElementById('fs_profitSummary').innerHTML = `<strong>Total Profit:</strong> —`;
+                    document.getElementById('fs_monthlyProfitSummary').innerHTML = `<strong>Current Month Profit:</strong> —`;
+                }
                 document.getElementById('fs_dueSummary').innerHTML = `<strong>Total Due:</strong> ৳ ${toFixed(sales - payments)}`;
             }
         }
         
+        const createSaleTxRowHTML = (tx, p) => {
+            let profit;
+            const sellingPrice = tx.sellingPrice || p.selling;
+            if (tx.isFake) { profit = tx.total; }
+            else { profit = (sellingPrice - p.cost) * tx.qty; }
+            return `<tr data-id="${tx.id}"> <td contenteditable="true" onblur="editTransactionField(this, ${tx.id}, 'date', this.innerText)">${tx.date}</td> <td contenteditable="true" onblur="editTransactionField(this, ${tx.id}, 'time', this.innerText)">${tx.time}</td> <td>${p.name}</td> <td contenteditable="true" onblur="editTransactionQty(this, ${tx.id}, this.innerText)">${toFixed(tx.qty)}</td> <td>${toFixed(p.cost)}</td><td>${toFixed(sellingPrice)}</td> <td>৳ ${toFixed(tx.total)}</td><td>৳ ${toFixed(profit)}</td> <td><button class="deleteBtn" onclick="deleteTransaction(${tx.id})">Delete</button></td> </tr>`;
+        };
+        
+        function updateCreditSaleTotal() {
+            const qty = parseFloat(document.getElementById('fs_saleQty').value) || 1; // Default to 1 for calculation
+            const price = parseFloat(document.getElementById('fs_salePrice').value) || 0;
+            document.getElementById('fs_saleTotal').value = toFixed(qty * price);
+        }
+
+        function updateCreditSalePerUnitPrice() {
+            const qty = parseFloat(document.getElementById('fs_saleQty').value) || 1;
+            const total = parseFloat(document.getElementById('fs_saleTotal').value) || 0;
+            if (qty > 0) {
+                document.getElementById('fs_salePrice').value = toFixed(total / qty);
+            }
+        }
+
         async function addCustomerSaleFullScreen(event) {
-            event.preventDefault();
-            if (!currentCustomer) return alert('Select customer');
-            
+            event.preventDefault(); if (!currentCustomer) return;
             const productId = parseInt(document.getElementById('fs_saleProductId').value);
             const qty = parseFloat(document.getElementById('fs_saleQty').value) || 1;
-            if (!productId || isNaN(qty) || qty <= 0) return alert('Provide valid data');
+            const total = parseFloat(document.getElementById('fs_saleTotal').value);
+
+            if (!productId || isNaN(qty) || qty <= 0 || isNaN(total) || total < 0) return alert('Provide valid data for all sale fields');
+            
+            const sellingPrice = total / qty;
             
             const p = await getOne('products', productId);
             if (!p || qty > (p.purchased - p.sold)) return alert('Not enough stock');
             
             const { date, time } = getCurrentDateTime();
-            const tx = { 
-                customer: currentCustomer, type: 'credit', productId: p.id, 
-                qty, sellingPrice: p.selling, date, time, total: p.selling * qty 
-            };
-            
+            const txData = { customer: currentCustomer, type: 'credit', productId: p.id, qty, sellingPrice, date, time, total };
             p.sold += qty;
-            await Promise.all([put('transactions', tx), put('products', p)]);
             
-            await renderCustomerFullScreenView();
-            await renderDashboard();
+            const [txId, _] = await Promise.all([add('transactions', txData), put('products', p)]);
+            const newTx = await getOne('transactions', txId);
             
-            document.getElementById('fs_saleQty').value = '';
-            document.getElementById('fs_saleProductInput').value = '';
+            document.getElementById('fs_customerSalesTransactions').insertAdjacentHTML('beforeend', createSaleTxRowHTML(newTx, p));
+            await updateCustomerSummaries(true); 
+            
+            const profit = (sellingPrice - p.cost) * qty;
+            updateDashboardValues({ sales: total, creditSale: total, stockOut: p.cost * qty, profit: profit });
+            
+            document.getElementById('fs_saleQty').value = ''; 
+            document.getElementById('fs_salePrice').value = '';
+            document.getElementById('fs_saleTotal').value = '';
+            document.getElementById('fs_saleProductInput').value = ''; 
+            document.getElementById('fs_saleProductId').value = '';
+        }
+
+        async function addFakeSaleFullScreen(event) {
+            event.preventDefault();
+            if (!currentCustomer) return;
+
+            const productId = parseInt(document.getElementById('fs_saleProductId').value);
+            const qty = parseFloat(document.getElementById('fs_saleQty').value) || 1;
+            const total = parseFloat(document.getElementById('fs_saleTotal').value);
+
+            if (!productId || isNaN(qty) || qty <= 0 || isNaN(total) || total < 0) return alert('Provide valid data for all sale fields');
+            
+            const sellingPrice = total / qty;
+            
+            const p = await getOne('products', productId);
+            if (!p) return alert('Product not found. Cannot calculate profit.');
+
+            const { date, time } = getCurrentDateTime();
+            const txData = { customer: currentCustomer, type: 'credit', productId: p.id, qty, sellingPrice, date, time, total, isFake: true };
+            
+            const txId = await add('transactions', txData);
+            const newTx = await getOne('transactions', txId);
+            
+            document.getElementById('fs_customerSalesTransactions').insertAdjacentHTML('beforeend', createSaleTxRowHTML(newTx, p));
+            await updateCustomerSummaries(true); 
+            
+            const profit = total;
+            updateDashboardValues({ sales: total, creditSale: total, profit: profit });
+            
+            document.getElementById('fs_saleQty').value = ''; 
+            document.getElementById('fs_salePrice').value = '';
+            document.getElementById('fs_saleTotal').value = '';
+            document.getElementById('fs_saleProductInput').value = ''; 
             document.getElementById('fs_saleProductId').value = '';
         }
 
         async function addPreviousDue(event) {
-            event.preventDefault();
-            if (!currentCustomer) return alert('Select a customer first.');
+            event.preventDefault(); if (!currentCustomer) return;
             const amount = parseFloat(document.getElementById('previousDueAmount').value);
-            if (isNaN(amount) || amount <= 0) return alert('Please enter a valid due amount.');
-
+            if (isNaN(amount) || amount <= 0) return alert('Enter a valid due amount.');
             const { date, time } = getCurrentDateTime();
-            const tx = {
-                customer: currentCustomer,
-                type: 'credit',
-                productId: 0, // Special ID for previous due
-                qty: 1,
-                sellingPrice: amount,
-                total: amount,
-                date,
-                time
-            };
-
-            await put('transactions', tx);
-            await renderCustomerFullScreenView();
-            await renderDashboard();
+            const tx = { customer: currentCustomer, type: 'credit', productId: 0, qty: 1, sellingPrice: amount, total: amount, date, time };
+            await add('transactions', tx);
+            await renderCustomerFullScreenView(); 
+            const profit = amount * 0.10;
+            updateDashboardValues({ sales: amount, creditSale: amount, profit: profit });
             event.target.reset();
         }
         
         async function addCustomerPaymentFullScreen(event) {
-            event.preventDefault();
-            if (!currentCustomer) return alert('Select customer');
+            event.preventDefault(); if (!currentCustomer) return;
             const amount = parseFloat(document.getElementById('fs_duePayment').value);
             if (isNaN(amount) || amount <= 0) return alert('Enter a valid amount');
-            
             const { date, time } = getCurrentDateTime();
-            const tx = { customer: currentCustomer, type: 'payment', amount, date, time };
-            
-            await put('transactions', tx);
-            await renderCustomerFullScreenView();
-            await renderDashboard();
+            const txData = { customer: currentCustomer, type: 'payment', amount, date, time };
+            const txId = await add('transactions', txData);
+            const newTx = await getOne('transactions', txId);
+            const html = `<tr data-id="${newTx.id}"> <td contenteditable="true" onblur="editTransactionField(this, ${newTx.id}, 'date', this.innerText)">${newTx.date}</td> <td contenteditable="true" onblur="editTransactionField(this, ${newTx.id}, 'time', this.innerText)">${newTx.time}</td> <td contenteditable="true" onblur="editTransactionField(this, ${newTx.id}, 'amount', this.innerText.replace('৳', '').trim())">৳ ${toFixed(newTx.amount)}</td> <td><button class="deleteBtn" onclick="deleteTransaction(${newTx.id})">Delete</button></td> </tr>`;
+            document.getElementById('fs_customerPaymentHistory').insertAdjacentHTML('beforeend', html);
+            await updateCustomerSummaries(true);
+            updateDashboardValues({ paymentIn: amount });
             document.getElementById('fs_duePayment').value = '';
         }
 
         async function deleteTransaction(txId) {
             if (!confirm('Delete this transaction?')) return;
-            const tx = await getOne('transactions', txId);
-            if (!tx) return;
-            if (tx.type === 'credit' && tx.productId !== 0) {
-                const prod = await getOne('products', tx.productId);
-                if (prod) {
-                    prod.sold -= tx.qty;
-                    await put('products', prod);
+            const tx = await getOne('transactions', txId); if (!tx) return;
+            let product, changes = {};
+            if (tx.type === 'credit' || tx.type === 'cash') {
+                if (tx.productId !== 0) {
+                    product = await getOne('products', tx.productId);
+                    if (product) {
+                        let profit;
+                        let stockOutChange = 0;
+                        if (tx.isFake) {
+                            profit = tx.total;
+                        } else {
+                            profit = (tx.sellingPrice - product.cost) * tx.qty;
+                            stockOutChange = -product.cost * tx.qty;
+                            product.sold -= tx.qty;
+                            await put('products', product);
+                        }
+                        changes = {
+                            sales: -tx.total,
+                            stockOut: stockOutChange,
+                            profit: -profit,
+                            [tx.type === 'credit' ? 'creditSale' : 'cashSale']: -tx.total
+                        };
+                    }
+                } else {
+                    changes = { sales: -tx.total, creditSale: -tx.total, profit: -(tx.total * 0.10) };
                 }
+            } else if (tx.type === 'payment') {
+                changes = { paymentIn: -tx.amount };
             }
             await deleteItem('transactions', txId);
-            
-            const visibleSection = document.querySelector('section:not(.hidden)').id;
-            if (visibleSection === 'customerFullScreen') {
-                await renderCustomerFullScreenView();
-            } else if (visibleSection === 'saleRecordSection') {
-                await renderSaleRecord();
-            }
-
-            await renderDashboard();
+            document.querySelector(`tr[data-id='${txId}']`)?.remove();
+            if (document.querySelector('section:not(.hidden)').id === 'customerFullScreen') await updateCustomerSummaries(true);
+            updateDashboardValues(changes);
         }
 
         // --- PRODUCTS ---
         const createProductRow = (p, index) => {
             const stock = p.purchased - p.sold;
-            let expiryStyle = '';
-            if (p.expiry && /^\d{1,2}\/\d{4}$/.test(p.expiry)) {
-                const [month, year] = p.expiry.split('/');
-                if (new Date(parseInt(year), parseInt(month), 1) <= new Date()) {
-                    expiryStyle = 'style="color: red; font-weight: bold;"';
-                }
-            }
+            const isExpired = isProductExpired(p.expiry);
+            const expiryStyle = isExpired ? 'style="color: red; font-weight: bold;"' : '';
+            
             const hiddenStyle = mode === 'normal' ? 'style="filter:blur(4px)" title="Hidden"' : '';
-
-            return `<tr data-id="${p.id}" draggable="true">
-                <td>${index + 1}</td>
-                <td>
-                    <label for="img-upload-${p.id}"><img src="${p.image || ''}" class="thumb" style="cursor:pointer;" onerror="this.src='${placeholderImg}'" /></label>
-                    <input type="file" id="img-upload-${p.id}" accept="image/*" style="display:none;" onchange="editProductImage(${p.id}, event)">
-                </td>
-                <td contenteditable="true" onblur="editProductField(${p.id}, 'name', this.innerText)">${p.name}</td>
-                <td contenteditable="true" onblur="editProductField(${p.id}, 'purchased', this.innerText)">${toFixed(p.purchased)}</td>
-                <td contenteditable="true" onblur="editProductField(${p.id}, 'sold', this.innerText)">${toFixed(p.sold)}</td>
-                <td>${toFixed(stock)}</td>
-                <td ${hiddenStyle} contenteditable="true" onblur="editProductField(${p.id}, 'cost', this.innerText)">${toFixed(p.cost)}</td>
-                <td ${hiddenStyle} contenteditable="true" onblur="editProductField(${p.id}, 'selling', this.innerText)">${toFixed(p.selling)}</td>
-                <td ${expiryStyle} contenteditable="true" onblur="editProductField(${p.id}, 'expiry', this.innerText)">${p.expiry || ''}</td>
-                <td contenteditable="true" onblur="editProductField(${p.id}, 'agentMobile', this.innerText)">${p.agentMobile || ''}</td>
-                <td><button class="deleteBtn" onclick="deleteProduct(${p.id})">Delete</button></td>
-            </tr>`;
+            return `<tr data-id="${p.id}" draggable="true"> <td>${index + 1}</td> <td> <label for="img-upload-${p.id}"><img src="${p.image || ''}" class="thumb" style="cursor:pointer;" onerror="this.src='${placeholderImg}'" /></label> <input type="file" id="img-upload-${p.id}" accept="image/*" style="display:none;" onchange="editProductImage(${p.id}, event)"> </td> <td contenteditable="true" onblur="editProductField(${p.id}, 'name', this.innerText)">${p.name}</td> <td contenteditable="true" onblur="editProductField(${p.id}, 'purchased', this.innerText)">${toFixed(p.purchased)}</td> <td contenteditable="true" onblur="editProductField(${p.id}, 'sold', this.innerText)">${toFixed(p.sold)}</td> <td>${toFixed(stock)}</td> <td ${hiddenStyle} contenteditable="true" onblur="editProductField(${p.id}, 'cost', this.innerText)">${toFixed(p.cost)}</td> <td ${hiddenStyle} contenteditable="true" onblur="editProductField(${p.id}, 'selling', this.innerText)">${toFixed(p.selling)}</td> <td ${expiryStyle} contenteditable="true" onblur="editProductField(${p.id}, 'expiry', this.innerText)">${p.expiry || ''}</td> <td contenteditable="true" onblur="editProductField(${p.id}, 'agentMobile', this.innerText)">${p.agentMobile || ''}</td> <td><button class="deleteBtn" onclick="deleteProduct(${p.id})">Delete</button></td> </tr>`;
         }
 
         async function renderProducts() {
             const products = await getAll('products');
-            let needsUpdate = false;
-            products.forEach((p, index) => {
-                if (p.order === undefined) {
-                    p.order = index;
-                    needsUpdate = true;
-                }
-            });
-
-            if (needsUpdate) {
-                const tx = db.transaction('products', 'readwrite');
-                const store = tx.objectStore('products');
-                await Promise.all(products.map(p => store.put(p)));
-                console.log('Added missing order property to products.');
-            }
-            
-            products.sort((a, b) => (b.sold - a.sold) || ((a.order || 0) - (b.order || 0)));
+            let needsUpdate = false; products.forEach((p, index) => { if (p.order === undefined) { p.order = index; needsUpdate = true; } });
+            if (needsUpdate) { const store = await getStore('products', 'readwrite'); await Promise.all(products.map(p => store.put(p))); }
+            products.sort((a, b) => (a.order || 0) - (b.order || 0));
             document.getElementById('productList').innerHTML = products.map((p, i) => createProductRow(p, i)).join('');
             setupProductDragAndDrop();
         }
@@ -1021,87 +1237,50 @@
                 const newQty = parseFloat(document.getElementById('productQty').value);
                 const newCost = parseFloat(document.getElementById('productCost').value);
                 if (isNaN(newQty) || newQty <= 0) return alert('Please enter a valid quantity to add.');
-
                 if (confirm(`Product "${name}" already exists. Do you want to add ${newQty} units to its stock?`)) {
-                    const oldTotalQty = existingProduct.purchased;
-                    const oldCost = existingProduct.cost;
-
-                    if (!isNaN(newCost) && newCost >= 0) {
-                        const newTotalValue = (oldTotalQty * oldCost) + (newQty * newCost);
-                        existingProduct.cost = newTotalValue / (oldTotalQty + newQty);
-                    }
-                    
-                    existingProduct.purchased += newQty;
-                    existingProduct.purchaseDate = getCurrentDateTime().date;
-
-                    const newSelling = document.getElementById('productSelling').value;
-                    if (newSelling) existingProduct.selling = parseFloat(newSelling);
-
-                    const newExpiry = document.getElementById('productExpiry').value.trim();
-                    if (newExpiry) existingProduct.expiry = newExpiry;
-
-                    const newAgentMobile = document.getElementById('agentMobile').value.trim();
-                    if (newAgentMobile) existingProduct.agentMobile = newAgentMobile;
-
-                    await put('products', existingProduct);
-                    await renderProducts();
-                    await renderDashboard();
-                    event.target.reset();
-                    showSection('products');
-                    alert('Stock added successfully!');
-                }
-                return;
+                    await addStockFromList(existingProduct.id, {qty: newQty, cost: newCost}); 
+                    document.getElementById('addProductForm').reset(); showSection('products');
+                } return;
             }
 
-            const p = {
-                name,
-                purchased: parseFloat(document.getElementById('productQty').value) || 0,
-                sold: 0,
-                cost: parseFloat(document.getElementById('productCost').value) || 0,
-                selling: parseFloat(document.getElementById('productSelling').value) || 0,
-                expiry: document.getElementById('productExpiry').value.trim(),
-                agentMobile: document.getElementById('agentMobile').value.trim(),
-                image: '',
-                purchaseDate: getCurrentDateTime().date,
-                order: products.length
-            };
+            const p = { name, purchased: parseFloat(document.getElementById('productQty').value) || 0, sold: 0, cost: parseFloat(document.getElementById('productCost').value) || 0, selling: parseFloat(document.getElementById('productSelling').value) || 0, expiry: document.getElementById('productExpiry').value.trim(), agentMobile: document.getElementById('agentMobile').value.trim(), image: '', purchaseDate: getCurrentDateTime().date, order: products.length };
             const finalize = async (img = '') => {
                 p.image = img;
-                await put('products', p);
-                await renderProducts();
-                await renderDashboard();
-                event.target.reset();
+                const newId = await add('products', p);
+                const newProduct = await getOne('products', newId);
+                const productList = document.getElementById('productList');
+                const newIndex = productList.children.length;
+                productList.insertAdjacentHTML('beforeend', createProductRow(newProduct, newIndex));
+                updateDashboardValues({ purchase: p.purchased * p.cost });
+                document.getElementById('addProductForm').reset();
                 showSection('products');
             };
-            
             const imageFile = document.getElementById('productImage').files[0];
-            if (imageFile) {
-                const reader = new FileReader();
-                reader.onloadend = () => finalize(reader.result);
-                reader.readAsDataURL(imageFile);
-            } else {
-                finalize();
-            }
+            if (imageFile) { const reader = new FileReader(); reader.onloadend = () => finalize(reader.result); reader.readAsDataURL(imageFile); } else { finalize(); }
         }
         
         async function deleteProduct(pid) {
-            if (!confirm('Delete product and related transactions?')) return;
-            await Promise.all([
-                deleteItem('products', parseInt(pid)),
-                ... (await getAll('transactions')).filter(t => t.productId === parseInt(pid)).map(t => deleteItem('transactions', t.id))
-            ]);
-            await renderProducts(); // Re-render to fix serial numbers
-            await renderCustomers();
-            await renderDashboard();
+            const product = await getOne('products', pid);
+            if (!product) return;
+            if (product.sold > 0) {
+                return alert(`Cannot delete "${product.name}". It has sales records. Deleting it would corrupt historical profit and sales data. Please consider setting its stock to zero or renaming it.`);
+            }
+
+            if (!confirm(`Are you sure you want to delete "${product.name}"? This product has no sales record and can be safely deleted.`)) return;
+            
+            await deleteItem('products', parseInt(pid));
+            document.querySelector(`#productList tr[data-id='${pid}']`)?.remove();
+            
+            const purchaseValue = product.purchased * product.cost;
+            const stockValue = (product.purchased - product.sold) * product.cost;
+            updateDashboardValues({ purchase: -purchaseValue, stockOut: -stockValue });
         }
         
         async function editProductImage(id, event) {
-            const file = event.target.files[0];
-            if (!file) return;
+            const file = event.target.files[0]; if (!file) return;
             const reader = new FileReader();
             reader.onloadend = async () => {
-                const product = await getOne('products', id);
-                product.image = reader.result;
+                const product = await getOne('products', id); product.image = reader.result;
                 await put('products', product);
                 document.querySelector(`tr[data-id='${id}'] img`).src = reader.result;
             };
@@ -1109,277 +1288,250 @@
         }
 
         async function editProductField(pid, field, value) {
-            const p = await getOne('products', parseInt(pid));
-            if (!p) return;
+            const p = await getOne('products', parseInt(pid)); if (!p) return;
+            const oldValue = p[field];
             const trimmedValue = value.trim();
-            
+            let needsDashboardRender = false;
+
             if (['purchased', 'sold', 'cost', 'selling'].includes(field)) {
                 const n = parseFloat(trimmedValue);
-                if (isNaN(n) || n < 0) { alert('Invalid number'); return renderProducts(); }
+                if (isNaN(n) || n < 0) { alert('Invalid number'); event.target.innerText = oldValue; return; }
                 p[field] = n;
+                if (field === 'cost' || field === 'selling' || field === 'purchased') needsDashboardRender = true;
             } else {
                 p[field] = trimmedValue;
             }
-            
+
             await put('products', p);
-            
-            const updatedProduct = await getOne('products', parseInt(pid));
-            const row = document.querySelector(`#productList tr[data-id='${pid}']`);
-            if (row) {
-                const stockCell = row.children[5]; // Index 5 for stock
-                stockCell.innerText = toFixed(updatedProduct.purchased - updatedProduct.sold);
-            }
-            await renderDashboard();
+            if(field === 'expiry') await renderProducts(); // Re-render to update expiry color
+            if (needsDashboardRender) await renderDashboard();
             if (field === 'selling' && currentCustomer) await renderCustomerFullScreenView();
         }
 
         // --- PRODUCT DRAG AND DROP ---
         function setupProductDragAndDrop() {
-            const items = document.querySelectorAll('#productList tr');
-            items.forEach(item => {
-                item.addEventListener('dragstart', handleDragStart);
-                item.addEventListener('dragover', handleDragOver);
-                item.addEventListener('dragleave', handleDragLeave);
-                item.addEventListener('drop', handleDrop);
+            document.querySelectorAll('#productList tr').forEach(item => {
+                item.addEventListener('dragstart', handleDragStart); item.addEventListener('dragover', handleDragOver);
+                item.addEventListener('dragleave', handleDragLeave); item.addEventListener('drop', handleDrop);
                 item.addEventListener('dragend', handleDragEnd);
             });
         }
-
-        function handleDragStart(e) {
-            draggedItem = this;
-            this.classList.add('dragging');
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/html', this.innerHTML);
-        }
-
-        function handleDragOver(e) {
-            e.preventDefault();
-            this.classList.add('drag-over');
-        }
-
-        function handleDragLeave() {
-            this.classList.remove('drag-over');
-        }
-
+        function handleDragStart(e) { draggedItem = this; this.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; }
+        function handleDragOver(e) { e.preventDefault(); this.classList.add('drag-over'); }
+        function handleDragLeave() { this.classList.remove('drag-over'); }
         async function handleDrop(e) {
             e.stopPropagation();
             if (draggedItem !== this) {
                 const allItems = Array.from(this.parentNode.children);
                 const draggedIndex = allItems.indexOf(draggedItem);
                 const targetIndex = allItems.indexOf(this);
-
-                if (draggedIndex < targetIndex) {
-                    this.parentNode.insertBefore(draggedItem, this.nextSibling);
-                } else {
-                    this.parentNode.insertBefore(draggedItem, this);
-                }
+                if (draggedIndex < targetIndex) this.parentNode.insertBefore(draggedItem, this.nextSibling);
+                else this.parentNode.insertBefore(draggedItem, this);
                 await updateProductOrder();
             }
         }
-
-        function handleDragEnd() {
-            this.classList.remove('dragging');
-            document.querySelectorAll('#productList tr').forEach(item => {
-                item.classList.remove('drag-over');
-            });
-            draggedItem = null;
-        }
-
+        function handleDragEnd() { this.classList.remove('dragging'); document.querySelectorAll('#productList tr').forEach(item => item.classList.remove('drag-over')); draggedItem = null; }
         async function updateProductOrder() {
             const productRows = document.querySelectorAll('#productList tr');
             const newOrderedIds = Array.from(productRows).map(row => parseInt(row.dataset.id));
-            
             const products = await getAll('products');
             const productMap = new Map(products.map(p => [p.id, p]));
-            
-            const updatedProducts = [];
-            newOrderedIds.forEach((id, index) => {
+            const updatedProducts = newOrderedIds.map((id, index) => {
                 const product = productMap.get(id);
-                if (product && product.order !== index) {
-                    product.order = index;
-                    updatedProducts.push(product);
-                }
-            });
-
+                if (product) product.order = index;
+                return product;
+            }).filter(Boolean);
             if (updatedProducts.length > 0) {
-                const tx = db.transaction('products', 'readwrite');
-                const store = tx.objectStore('products');
+                const store = await getStore('products', 'readwrite');
                 await Promise.all(updatedProducts.map(p => store.put(p)));
-                console.log('Product order updated in DB.');
             }
-            
             await renderProducts();
         }
 
-
         // --- CASH SALES & STOCK ---
+        function updateCashSaleTotal(pid) {
+            const qty = parseFloat(document.getElementById(`sale-qty-${pid}`).value) || 1;
+            const price = parseFloat(document.getElementById(`sale-price-${pid}`).value) || 0;
+            document.getElementById(`sale-total-${pid}`).value = toFixed(qty * price);
+        }
+
+        function updateCashSalePerUnitPrice(pid) {
+            const qty = parseFloat(document.getElementById(`sale-qty-${pid}`).value) || 1;
+            const total = parseFloat(document.getElementById(`sale-total-${pid}`).value) || 0;
+            if (qty > 0) {
+                 document.getElementById(`sale-price-${pid}`).value = toFixed(total / qty);
+            }
+        }
+        
         async function renderAddSalePage() {
-            const products = await getAll('products');
-            products.sort((a,b) => b.sold - a.sold);
-            document.getElementById('addSaleProductList').innerHTML = products.map(p => `
+            const products = (await getAll('products')).sort((a,b) => (a.order || 0) - (b.order || 0));
+            document.getElementById('addSaleProductList').innerHTML = products.map(p => {
+                const expired = isProductExpired(p.expiry);
+                const expiryHTML = p.expiry ? `| মেয়াদ: <span style="${expired ? 'color: red;' : ''}">${p.expiry}</span>` : '';
+                return `
                 <div class="add-item">
-                    <img src="${p.image || ''}" alt="${p.name}" class="thumb" onerror="this.src='${placeholderImg}'" />
+                    <img src="${p.image || ''}" class="thumb" onerror="this.src='${placeholderImg}'" />
                     <div class="add-item-details">
                         <strong>${p.name}</strong>
-                        <span class="small">স্টক: ${toFixed(p.purchased - p.sold)} | ক্রয়মূল্য: ৳${toFixed(p.cost)}</span>
+                        <span class="small" id="details-sale-${p.id}">স্টক: ${toFixed(p.purchased - p.sold)} | ক্রয়মূল্য: ৳${toFixed(p.cost)} ${expiryHTML}</span>
                     </div>
-                    <input type="number" step="0.01" placeholder="Qty" id="sale-qty-${p.id}">
-                    <input type="number" step="0.01" placeholder="Selling Price" value="${toFixed(p.selling)}" id="sale-price-${p.id}">
+                    <input type="number" step="any" placeholder="Qty" id="sale-qty-${p.id}" oninput="updateCashSaleTotal(${p.id})">
+                    <input type="number" step="any" placeholder="Selling Price" value="${toFixed(p.selling)}" id="sale-price-${p.id}" oninput="updateCashSaleTotal(${p.id})">
+                    <input type="number" step="any" placeholder="Total" id="sale-total-${p.id}" oninput="updateCashSalePerUnitPrice(${p.id})">
                     <button onclick="addSaleFromList(${p.id})">Add</button>
-                </div>`).join('');
+                </div>`;
+            }).join('');
         }
         
         async function addSaleFromList(pid) {
             const qty = parseFloat(document.getElementById(`sale-qty-${pid}`).value) || 1;
-            const sellingPrice = parseFloat(document.getElementById(`sale-price-${pid}`).value);
-            if (isNaN(qty) || qty <= 0 || isNaN(sellingPrice) || sellingPrice <= 0) return alert('Invalid input');
+            const sellingPriceInput = parseFloat(document.getElementById(`sale-price-${pid}`).value);
+            const total = parseFloat(document.getElementById(`sale-total-${pid}`).value);
+
+            if (isNaN(qty) || qty <= 0 || isNaN(sellingPriceInput) || sellingPriceInput <= 0) {
+                updateCashSaleTotal(pid); 
+                const newTotal = parseFloat(document.getElementById(`sale-total-${pid}`).value);
+                if (isNaN(newTotal) || newTotal <= 0) return alert('Invalid input');
+            }
+
+            const finalTotal = isNaN(total) || total === 0 ? sellingPriceInput * qty : total;
+            
+            const sellingPrice = finalTotal / qty;
 
             const p = await getOne('products', parseInt(pid));
             if (!p || qty > (p.purchased - p.sold)) return alert('Not enough stock');
             
             const { date, time } = getCurrentDateTime();
-            const tx = { type: 'cash', productId: p.id, qty, sellingPrice, date, time, total: sellingPrice * qty };
-            
+            const tx = { type: 'cash', productId: p.id, qty, sellingPrice, date, time, total: finalTotal };
             p.sold += qty;
-            await Promise.all([put('transactions', tx), put('products', p)]);
             
-            alert('Cash sale added!');
+            await Promise.all([add('transactions', tx), put('products', p)]);
+            
             document.getElementById(`sale-qty-${pid}`).value = '';
-            await renderAddSalePage();
-            await renderDashboard();
+            document.getElementById(`sale-total-${pid}`).value = '';
+
+            const expired = isProductExpired(p.expiry);
+            const expiryHTML = p.expiry ? `| মেয়াদ: <span style="${expired ? 'color: red;' : ''}">${p.expiry}</span>` : '';
+            document.getElementById(`details-sale-${p.id}`).innerHTML = `স্টক: ${toFixed(p.purchased - p.sold)} | ক্রয়মূল্য: ৳${toFixed(p.cost)} ${expiryHTML}`;
+            
+            const profit = (sellingPrice - p.cost) * qty;
+            updateDashboardValues({ sales: finalTotal, cashSale: finalTotal, stockOut: p.cost * qty, profit: profit });
         }
 
         async function renderAddStockPage() {
-            const products = await getAll('products');
-             products.sort((a,b) => b.sold - a.sold);
-            document.getElementById('addStockProductList').innerHTML = products.map(p => `
-                <div class="add-item">
-                    <img src="${p.image || ''}" alt="${p.name}" class="thumb" onerror="this.src='${placeholderImg}'" />
-                    <div class="add-item-details">
-                        <strong>${p.name}</strong>
-                        <span class="small">বর্তমান স্টক: ${toFixed(p.purchased - p.sold)} | বর্তমান ক্রয়মূল্য: ৳${toFixed(p.cost)}</span>
-                    </div>
-                    <input type="number" step="0.01" placeholder="New Qty" id="stock-qty-${p.id}" required>
-                    <input type="number" step="0.01" placeholder="New Cost" id="stock-cost-${p.id}" required>
-                    <button onclick="addStockFromList(${p.id})">Add Stock</button>
-                </div>`).join('');
+            const products = (await getAll('products')).sort((a,b) => (a.order || 0) - (b.order || 0));
+            document.getElementById('addStockProductList').innerHTML = products.map(p => {
+                const expired = isProductExpired(p.expiry);
+                const expiryHTML = p.expiry ? `| মেয়াদ: <span style="${expired ? 'color: red;' : ''}">${p.expiry}</span>` : '';
+                return ` <div class="add-item"> <img src="${p.image || ''}" class="thumb" onerror="this.src='${placeholderImg}'" /> <div class="add-item-details"> <strong>${p.name}</strong> <span class="small" id="details-stock-${p.id}">বর্তমান স্টক: ${toFixed(p.purchased - p.sold)} | বর্তমান ক্রয়মূল্য: ৳${toFixed(p.cost)} ${expiryHTML}</span> </div> <input type="number" step="any" placeholder="New Qty" id="stock-qty-${p.id}" required> <input type="number" step="any" placeholder="New Cost" id="stock-cost-${p.id}" required> <button onclick="addStockFromList(${p.id})">Add Stock</button> </div>`;
+            }).join('');
         }
 
-        async function addStockFromList(pid) {
-            const newQty = parseFloat(document.getElementById(`stock-qty-${pid}`).value);
-            const newCost = parseFloat(document.getElementById(`stock-cost-${pid}`).value);
-
-            if (isNaN(newQty) || newQty <= 0 || isNaN(newCost) || newCost < 0) {
-                return alert('Please enter a valid quantity and cost.');
-            }
-
-            const p = await getOne('products', parseInt(pid));
-            if (!p) return;
-
-            const oldTotalQty = p.purchased;
-            const oldCost = p.cost;
-
-            const newTotalValue = (oldTotalQty * oldCost) + (newQty * newCost);
-            p.cost = newTotalValue / (oldTotalQty + newQty);
+        async function addStockFromList(pid, data) {
+            const newQty = data ? data.qty : parseFloat(document.getElementById(`stock-qty-${pid}`).value);
+            const newCost = data ? data.cost : parseFloat(document.getElementById(`stock-cost-${pid}`).value);
+            if (isNaN(newQty) || newQty <= 0 || isNaN(newCost) || newCost < 0) return alert('Enter valid quantity and cost.');
+            const p = await getOne('products', parseInt(pid)); if (!p) return;
+            const oldTotalValue = p.purchased * p.cost;
+            const newTotalValue = (p.purchased + newQty) > 0 ? (oldTotalValue + (newQty * newCost)) / (p.purchased + newQty) : 0;
+            p.cost = newTotalValue;
             p.purchased += newQty;
             p.purchaseDate = getCurrentDateTime().date;
-
             await put('products', p);
-            
-            alert(`${newQty} units of "${p.name}" added to stock.`);
-            await renderAddStockPage();
-            await renderDashboard();
+            alert(`${newQty} units of "${p.name}" added.`);
+            if (document.getElementById(`details-stock-${p.id}`)){
+                 const expired = isProductExpired(p.expiry);
+                 const expiryHTML = p.expiry ? `| মেয়াদ: <span style="${expired ? 'color: red;' : ''}">${p.expiry}</span>` : '';
+                 document.getElementById(`details-stock-${p.id}`).innerHTML = `বর্তমান স্টক: ${toFixed(p.purchased - p.sold)} | বর্তমান ক্রয়মূল্য: ৳${toFixed(p.cost)} ${expiryHTML}`;
+            }
+            if(!data && document.getElementById(`stock-qty-${pid}`)){ document.getElementById(`stock-qty-${pid}`).value = ''; document.getElementById(`stock-cost-${pid}`).value = ''; }
+            updateDashboardValues({ purchase: newQty * newCost });
         }
-
 
         async function renderSaleRecord() {
             const [transactions, products] = await Promise.all([getAll('transactions'), getAll('products')]);
-            const cashTxs = transactions.filter(t => t.type === 'cash').reverse();
-            document.getElementById('cashSalesList').innerHTML = cashTxs.map(t => {
+            document.getElementById('cashSalesList').innerHTML = transactions.filter(t => t.type === 'cash').reverse().map(t => {
                 const p = products.find(prod => prod.id === t.productId) || { name: '(deleted)' };
-                return `<tr data-id="${t.id}">
-                    <td contenteditable="true" onblur="editTransactionField(${t.id}, 'date', this.innerText)">${t.date}</td>
-                    <td contenteditable="true" onblur="editTransactionField(${t.id}, 'time', this.innerText)">${t.time}</td>
-                    <td>${p.name}</td>
-                    <td contenteditable="true" onblur="editTransactionQty(${t.id}, this.innerText)">${toFixed(t.qty)}</td>
-                    <td>৳ ${toFixed(t.total)}</td>
-                    <td><button class="deleteBtn" onclick="deleteCashTransaction(${t.id})">Delete</button></td>
-                </tr>`;
+                return `<tr data-id="${t.id}"> <td contenteditable="true" onblur="editTransactionField(this, ${t.id}, 'date', this.innerText)">${t.date}</td> <td contenteditable="true" onblur="editTransactionField(this, ${t.id}, 'time', this.innerText)">${t.time}</td> <td>${p.name}</td> <td contenteditable="true" onblur="editTransactionQty(this, ${t.id}, this.innerText)">${toFixed(t.qty)}</td> <td>৳ ${toFixed(t.total)}</td> <td><button class="deleteBtn" onclick="deleteTransaction(${t.id})">Delete</button></td> </tr>`;
             }).join('');
         }
         
-        async function deleteCashTransaction(txId) {
-            if (!confirm('Delete this cash sale? Stock will be restored.')) return;
-            const tx = await getOne('transactions', parseInt(txId));
-            if (!tx || tx.type !== 'cash') return;
+        // --- COMMON TRANSACTION EDITING (FIXED) ---
+        async function editTransactionField(element, txId, field, value) {
+            const tx = await getOne('transactions', parseInt(txId)); if (!tx) return;
+            const oldValue = tx[field];
             
-            const prod = await getOne('products', tx.productId);
-            if (prod) {
-                prod.sold -= tx.qty;
-                await put('products', prod);
+            if (field === 'date' && !parseDMY(value.trim())) {
+                alert(`Invalid date format. Please use DD/MM/YYYY.`);
+                element.innerText = oldValue;
+                return;
             }
-            await deleteItem('transactions', parseInt(txId));
-            document.querySelector(`#cashSalesList tr[data-id='${txId}']`)?.remove();
-            await renderDashboard();
-        }
-
-        // --- COMMON TRANSACTION EDITING ---
-        async function editTransactionField(txId, field, value) {
-            const tx = await getOne('transactions', parseInt(txId));
-            if (!tx) return;
-            tx[field] = (field === 'amount') ? parseFloat(value) : value.trim();
-            await put('transactions', tx);
-            await renderDashboard();
-            if (tx.type !== 'cash') { await renderCustomers(); await renderCustomerFullScreenView(); }
-        }
-
-        async function editTransactionProduct(txId, newName) {
-            const tx = await getOne('transactions', parseInt(txId));
-            if (!tx || tx.productId === 0) return;
-            const products = await getAll('products');
-            const newProd = products.find(p => p.name.toLowerCase() === newName.trim().toLowerCase());
-            if (!newProd) { alert('Product not found'); return renderCustomerFullScreenView(); }
-            const oldProd = products.find(p => p.id === tx.productId);
-
-            if (oldProd && oldProd.id !== newProd.id) {
-                oldProd.sold -= tx.qty;
-                newProd.sold += tx.qty;
-                await put('products', oldProd);
-                await put('products', newProd);
+            if (field === 'amount') {
+                const newAmount = parseFloat(value);
+                if (isNaN(newAmount) || newAmount < 0) {
+                     alert(`Invalid amount.`);
+                     element.innerText = `৳ ${toFixed(oldValue)}`;
+                     return;
+                }
+                const amountDifference = newAmount - oldValue;
+                tx.amount = newAmount;
+                updateDashboardValues({ paymentIn: amountDifference });
+            } else {
+                tx[field] = value.trim();
             }
-            tx.productId = newProd.id;
-            tx.total = newProd.selling * tx.qty;
-            tx.sellingPrice = newProd.selling;
+            
             await put('transactions', tx);
-            await renderCustomerFullScreenView();
-            await renderDashboard();
+            if(tx.type !== 'cash') await updateCustomerSummaries(true);
         }
 
-        async function editTransactionQty(txId, newQtyRaw) {
-            const tx = await getOne('transactions', parseInt(txId));
-            if (!tx || tx.productId === 0) return;
+        async function editTransactionQty(element, txId, newQtyRaw) {
+            const tx = await getOne('transactions', parseInt(txId)); if (!tx || tx.productId === 0) return;
+            
+            const newQty = parseFloat(newQtyRaw);
+            if (isNaN(newQty) || newQty <= 0) {
+                alert('Invalid quantity. Please enter a positive number.');
+                element.innerText = toFixed(tx.qty);
+                return;
+            }
 
-            const qty = parseFloat(newQtyRaw);
-            if (isNaN(qty) || qty < 0) { alert('Invalid qty'); return; }
-            
-            const prod = await getOne('products', tx.productId);
-            if (!prod) { alert('Product removed'); return; }
+            const p = await getOne('products', tx.productId);
+            if (!p) {
+                alert('Associated product not found.');
+                return;
+            }
 
-            const qtyChange = qty - tx.qty;
-            const currentStock = prod.purchased - prod.sold;
-            if (qtyChange > currentStock) { alert('Not enough stock'); return; }
+            const qtyDifference = newQty - tx.qty;
+            const currentStock = p.purchased - p.sold;
+
+            if (qtyDifference > 0 && currentStock < qtyDifference) {
+                alert(`Not enough stock. Only ${toFixed(currentStock)} more units available.`);
+                element.innerText = toFixed(tx.qty);
+                return;
+            }
+
+            const oldTotal = tx.total;
+            const oldProfit = (tx.sellingPrice - p.cost) * tx.qty;
+
+            p.sold += qtyDifference;
+            tx.qty = newQty;
+            tx.total = tx.sellingPrice * newQty;
             
-            prod.sold += qtyChange;
-            tx.qty = qty;
-            tx.total = (tx.sellingPrice || prod.selling) * qty;
+            await Promise.all([put('products', p), put('transactions', tx)]);
             
-            await Promise.all([put('products', prod), put('transactions', tx)]);
+            const profitDifference = ((tx.sellingPrice - p.cost) * tx.qty) - oldProfit;
+            const totalDifference = tx.total - oldTotal;
+
+            const changes = {
+                sales: totalDifference,
+                stockOut: p.cost * qtyDifference,
+                profit: profitDifference,
+                [tx.type === 'credit' ? 'creditSale' : 'cashSale']: totalDifference
+            };
+            updateDashboardValues(changes);
             
-            const visibleSection = document.querySelector('section:not(.hidden)').id;
-            if (visibleSection === 'customerFullScreen') await renderCustomerFullScreenView();
-            else if (visibleSection === 'saleRecordSection') await renderSaleRecord();
-            
-            await renderDashboard();
+            if (tx.customer) {
+                await renderCustomerFullScreenView();
+            }
         }
         
         // --- EXPENSES ---
@@ -1388,121 +1540,113 @@
             const title = document.getElementById('expenseTitle').value.trim();
             const amount = parseFloat(document.getElementById('expenseAmount').value);
             if (!title || isNaN(amount) || amount <= 0) return alert('Provide valid expense');
-            
             const { date, time } = getCurrentDateTime();
             const newEx = { title, amount, date, time };
-            await put('expenses', newEx);
-            
-            await renderExpenses();
-            await renderDashboard();
-            event.target.reset();
+            const exId = await add('expenses', newEx);
+            const expense = await getOne('expenses', exId);
+            const html = `<tr data-id="${expense.id}"> <td contenteditable="true" onblur="editExpenseField(this, ${expense.id}, 'date', this.innerText)">${expense.date}</td> <td contenteditable="true" onblur="editExpenseField(this, ${expense.id}, 'time', this.innerText)">${expense.time}</td> <td contenteditable="true" onblur="editExpenseField(this, ${expense.id}, 'title', this.innerText)">${expense.title}</td> <td contenteditable="true" onblur="editExpenseField(this, ${expense.id}, 'amount', this.innerText.replace('৳', '').trim())">৳ ${toFixed(expense.amount)}</td> <td><button class="deleteBtn" onclick="deleteExpense(${expense.id})">Delete</button></td> </tr>`;
+            document.getElementById('expenseList').insertAdjacentHTML('afterbegin', html);
+            updateDashboardValues({ expense: amount });
+            document.getElementById('addExpenseForm').reset();
         }
 
         async function renderExpenses() {
-            const expenses = await getAll('expenses');
-            document.getElementById('expenseList').innerHTML = expenses.reverse().map(ex => `
-                <tr data-id="${ex.id}">
-                    <td contenteditable="true" onblur="editExpenseField(${ex.id}, 'date', this.innerText)">${ex.date}</td>
-                    <td contenteditable="true" onblur="editExpenseField(${ex.id}, 'time', this.innerText)">${ex.time}</td>
-                    <td contenteditable="true" onblur="editExpenseField(${ex.id}, 'title', this.innerText)">${ex.title}</td>
-                    <td contenteditable="true" onblur="editExpenseField(${ex.id}, 'amount', this.innerText.replace('৳', '').trim())">৳ ${toFixed(ex.amount)}</td>
-                    <td><button class="deleteBtn" onclick="deleteExpense(${ex.id})">Delete</button></td>
-                </tr>`).join('');
+            document.getElementById('expenseList').innerHTML = (await getAll('expenses')).reverse().map(ex => ` <tr data-id="${ex.id}"> <td contenteditable="true" onblur="editExpenseField(this, ${ex.id}, 'date', this.innerText)">${ex.date}</td> <td contenteditable="true" onblur="editExpenseField(this, ${ex.id}, 'time', this.innerText)">${ex.time}</td> <td contenteditable="true" onblur="editExpenseField(this, ${ex.id}, 'title', this.innerText)">${ex.title}</td> <td contenteditable="true" onblur="editExpenseField(this, ${ex.id}, 'amount', this.innerText.replace('৳', '').trim())">৳ ${toFixed(ex.amount)}</td> <td><button class="deleteBtn" onclick="deleteExpense(${ex.id})">Delete</button></td> </tr>`).join('');
         }
         
-        async function editExpenseField(id, field, value) {
-            const ex = await getOne('expenses', parseInt(id));
-            if (!ex) return;
-            ex[field] = (field === 'amount') ? parseFloat(value) : value.trim();
+        async function editExpenseField(element, id, field, value) {
+            const ex = await getOne('expenses', parseInt(id)); if (!ex) return;
+            const oldValue = ex[field];
+            
+            if (field === 'amount') {
+                const newAmount = parseFloat(value);
+                if (isNaN(newAmount) || newAmount < 0) {
+                     alert(`Invalid amount.`);
+                     element.innerText = `৳ ${toFixed(oldValue)}`;
+                     return;
+                }
+                const amountDifference = newAmount - oldValue;
+                ex.amount = newAmount;
+                updateDashboardValues({ expense: amountDifference });
+            } else {
+                 ex[field] = value.trim();
+            }
             await put('expenses', ex);
-            await renderDashboard();
         }
 
         async function deleteExpense(id) {
             if (!confirm('Delete this expense?')) return;
-            await deleteItem('expenses', parseInt(id));
-            document.querySelector(`#expenseList tr[data-id='${id}']`)?.remove();
-            await renderDashboard();
+            const expense = await getOne('expenses', id);
+            if (expense) {
+                await deleteItem('expenses', parseInt(id));
+                document.querySelector(`#expenseList tr[data-id='${id}']`)?.remove();
+                updateDashboardValues({ expense: -expense.amount });
+            }
         }
 
         // --- SALE PRODUCT DROPDOWN ---
         async function fillSaleProductOptions(isFullScreen = false) {
-            let products = await getAll('products');
-            products.sort((a,b) => b.sold - a.sold);
-
+            let products = (await getAll('products')).sort((a,b) => (a.order || 0) - (b.order || 0));
             const prefix = isFullScreen ? 'fs_sale' : 'sale';
-            const input = document.getElementById(`${prefix}ProductInput`);
-            const dropdown = document.getElementById(`${prefix}ProductList`);
-            if (!input || !dropdown) return;
-            
+            const input = document.getElementById(`${prefix}ProductInput`), dropdown = document.getElementById(`${prefix}ProductList`); if (!input || !dropdown) return;
             input.oninput = () => {
-                const term = input.value.toLowerCase();
-                if (!term) { dropdown.style.display = 'none'; return; }
+                const term = input.value.toLowerCase(); if (!term) { dropdown.style.display = 'none'; return; }
                 const filtered = products.filter(p => p.name.toLowerCase().includes(term));
-                dropdown.innerHTML = filtered.map(p => `
-                    <div class="custom-dropdown-list-item" data-id="${p.id}" data-name="${p.name}">
-                        <img src="${p.image || ''}" class="custom-dropdown-item-image" onerror="this.src='${placeholderImg}'" />
-                        <div class="custom-dropdown-item-details">
-                            <span class="custom-dropdown-item-name">${p.name}</span>
-                            <span class="custom-dropdown-item-info">স্টক: ${toFixed(p.purchased - p.sold)} | মূল্য: ৳${toFixed(p.selling)}</span>
-                        </div>
-                    </div>`).join('');
+                dropdown.innerHTML = filtered.map(p => {
+                    const expired = isProductExpired(p.expiry);
+                    const expiryHTML = p.expiry ? `| মেয়াদ: <span style="${expired ? 'color: red;' : ''}">${p.expiry}</span>` : '';
+                    return ` <div class="custom-dropdown-list-item" data-id="${p.id}" data-name="${p.name}"> <img src="${p.image || ''}" class="custom-dropdown-item-image" onerror="this.src='${placeholderImg}'" /> <div class="custom-dropdown-item-details"> <span class="custom-dropdown-item-name">${p.name}</span> <span class="custom-dropdown-item-info">স্টক: ${toFixed(p.purchased - p.sold)} | মূল্য: ৳${toFixed(p.selling)} ${expiryHTML}</span> </div> </div>`;
+                }).join('');
                 dropdown.style.display = filtered.length ? 'block' : 'none';
             };
             dropdown.onclick = (e) => {
                 const item = e.target.closest('.custom-dropdown-list-item');
                 if (item) {
                     input.value = item.dataset.name;
-                    document.getElementById(`${prefix}ProductId`).value = item.dataset.id;
+                    const productId = item.dataset.id;
+                    document.getElementById(`${prefix}ProductId`).value = productId;
                     dropdown.style.display = 'none';
+                    if (isFullScreen) {
+                        const selectedProduct = products.find(p => p.id == productId);
+                        if (selectedProduct) {
+                            const qtyInput = document.getElementById('fs_saleQty');
+                            const qty = parseFloat(qtyInput.value) || 1; // Default to 1 for calculation
+                            document.getElementById('fs_salePrice').value = toFixed(selectedProduct.selling);
+                            document.getElementById('fs_saleTotal').value = toFixed(selectedProduct.selling * qty);
+                        }
+                    }
                 }
             };
-            document.addEventListener('click', (e) => {
-                if (!e.target.closest('.custom-dropdown-container')) {
-                    dropdown.style.display = 'none';
-                }
-            });
+            document.addEventListener('click', (e) => { if (!e.target.closest('.custom-dropdown-container')) { dropdown.style.display = 'none'; } });
         }
         
         // --- IMPORT/EXPORT ---
         async function exportData() {
             const data = {};
             for(const storeName of STORES) { data[storeName] = await getAll(storeName); }
-            data.mode = localStorage.getItem('shop_mode_v2');
-            data.initialCash = localStorage.getItem('initial_cash');
-            
+            data.mode = localStorage.getItem('shop_mode_v2'); data.initialCash = localStorage.getItem('initial_cash');
             const a = document.createElement('a');
             a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
             a.download = `shop_data_${new Date().toISOString().slice(0, 10)}.json`;
-            a.click();
-            URL.revokeObjectURL(a.href);
-            alert('Data exported and downloaded.');
+            a.click(); URL.revokeObjectURL(a.href); alert('Data exported.');
         }
 
         async function importData(event) {
             if (!confirm('Are you sure? All existing data will be replaced.')) return;
-            const file = event.target.files[0];
-            if (!file) return;
-            
+            const file = event.target.files[0]; if (!file) return;
             const importedData = JSON.parse(await file.text());
             const tx = db.transaction(STORES, 'readwrite');
             await Promise.all(STORES.map(storeName => new Promise(res => tx.objectStore(storeName).clear().onsuccess = res)));
             await Promise.all(STORES.flatMap(storeName => importedData[storeName].map(item => new Promise(res => tx.objectStore(storeName).add(item).onsuccess = res))));
-
             if (importedData.mode) localStorage.setItem('shop_mode_v2', importedData.mode);
             if (importedData.initialCash) localStorage.setItem('initial_cash', importedData.initialCash);
-
-            alert('Data imported successfully. Reloading page.');
-            window.location.reload();
+            alert('Data imported successfully. Reloading page.'); window.location.reload();
         }
 
         // --- INITIALIZATION ---
         window.addEventListener('DOMContentLoaded', async () => {
-            await initDB();
-            await requestPersistentStorage();
-            
+            await initDB(); await requestPersistentStorage();
             document.getElementById('modeLabel').innerText = mode === 'details' ? 'Details' : 'Normal';
-
             const params = new URLSearchParams(window.location.search);
             if (params.has('customer')) {
                 const name = decodeURIComponent(params.get('customer'));
@@ -1517,16 +1661,17 @@
             }
         });
 
-        // Expose functions to global scope for inline handlers
         Object.assign(window, {
             showSection, addCustomer, addProduct, addSaleFromList, addExpense, addStockFromList,
-            addCustomerSaleFullScreen, addCustomerPaymentFullScreen, addPreviousDue,
-            deleteCustomer, deleteProduct, deleteTransaction, deleteCashTransaction, deleteExpense,
-            editProductField, editExpenseField, editTransactionField, editTransactionProduct, editTransactionQty,
-            editProductImage, editCustomerImage, editCustomerName,
-            openCustomerInNewTab, openCustomerInNewTabByName, openCustomerFullScreenView,
+            addCustomerSaleFullScreen, addCustomerPaymentFullScreen, addPreviousDue, addFakeSaleFullScreen,
+            deleteCustomer, deleteProduct, deleteTransaction, deleteExpense,
+            editProductField, editExpenseField, editTransactionField, editTransactionQty,
+            editProductImage, editCustomerImage, editCustomerField,
+            openCustomerInNewTab, openCustomerFullScreenView,
             toggleMode, toggleMenu, exportData, importData, updateInitialCash,
-            searchProducts, searchCustomers, searchAddSaleProducts, searchAddStockProducts, handleStolen
+            searchProducts, searchCustomers, searchAddSaleProducts, searchAddStockProducts, handleStolen,
+            updateCreditSaleTotal, updateCreditSalePerUnitPrice, updateCashSaleTotal, updateCashSalePerUnitPrice,
+            renderTodaySaleSection
         });
     </script>
 </body>
